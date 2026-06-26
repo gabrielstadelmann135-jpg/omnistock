@@ -1838,7 +1838,63 @@ loadProducts();
 
 
 
+<script>
+(function(){
+  function injectStoreSearch(){
+    var grid = document.getElementById('store-grid');
+    if(!grid || document.getElementById('store-search-bar')) return;
+    var wrap = document.createElement('div');
+    wrap.id = 'store-search-bar';
+    wrap.style.cssText = 'max-width:500px;margin-bottom:20px';
+    wrap.innerHTML = `
+      <div class="search-bar" style="box-shadow:none;border-width:1.5px">
+        <input type="text" id="store-search-input" placeholder="Rechercher une boutique, une catégorie…">
+        <button onclick="filterStoreCards()">Rechercher</button>
+      </div>`;
+    grid.parentNode.insertBefore(wrap, grid);
+    document.getElementById('store-search-input').addEventListener('input', filterStoreCards);
+    document.getElementById('store-search-input').addEventListener('keydown', function(e){ if(e.key==='Enter') filterStoreCards(); });
+  }
 
+  window.filterStoreCards = function(){
+    var input = document.getElementById('store-search-input');
+    var q = (input ? input.value : '').trim().toLowerCase();
+    var grid = document.getElementById('store-grid');
+    if(!grid) return;
+    var cards = grid.querySelectorAll('.store-card');
+    var visible = 0;
+    cards.forEach(function(card){
+      var text = card.innerText.toLowerCase();
+      var match = !q || text.indexOf(q) !== -1;
+      card.style.display = match ? '' : 'none';
+      if(match) visible++;
+    });
+    var countEl = document.getElementById('stores-count');
+    if(countEl && q) countEl.textContent = visible + ' résultat' + (visible!==1?'s':'') + ' pour "' + q + '"';
+
+    var emptyMsg = document.getElementById('store-search-empty');
+    if(visible === 0 && cards.length){
+      if(!emptyMsg){
+        emptyMsg = document.createElement('div');
+        emptyMsg.id = 'store-search-empty';
+        emptyMsg.className = 'empty-state';
+        emptyMsg.innerHTML = '<div class="icon">🔍</div><p>Aucune boutique ne correspond à votre recherche</p>';
+        grid.parentNode.appendChild(emptyMsg);
+      }
+      emptyMsg.style.display = '';
+    } else if(emptyMsg){
+      emptyMsg.style.display = 'none';
+    }
+  };
+
+  // Réinjecte la barre dès que la grille des boutiques est (re)générée
+  var storesPage = document.getElementById('page-stores');
+  if (storesPage) {
+    new MutationObserver(injectStoreSearch).observe(storesPage, { childList: true, subtree: true });
+  }
+  injectStoreSearch();
+})();
+</script>
 
 
 
