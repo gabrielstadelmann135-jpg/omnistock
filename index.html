@@ -1802,5 +1802,46 @@ window.showToast=function(msg){const t=document.getElementById('toast');t.textCo
 
 loadProducts();
 </script>
+
+
+
+<script>
+(function(){
+  function addItineraryButton(){
+    var details = document.getElementById('order-details');
+    if(!details) return;
+    var box = details.querySelector('.pickup-info-box');
+    if(!box || box.querySelector('#itin-btn')) return;
+    var lines = box.innerText.split('\n').map(s=>s.trim()).filter(Boolean);
+    if(lines.length < 2) return;
+    // lines[0]=icône/titre, lines[1]=nom boutique, lines[2]=adresse (si présente)
+    var dest = lines[1];
+    if(lines[2] && !/^Présentez/i.test(lines[2])) dest = lines[2];
+    var url = 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(dest);
+    var btn = document.createElement('a');
+    btn.id = 'itin-btn';
+    btn.href = url;
+    btn.target = '_blank';
+    btn.rel = 'noopener';
+    btn.className = 'btn btn-black btn-full';
+    btn.style.marginTop = '10px';
+    btn.textContent = '🧭 Itinéraire vers la boutique';
+    box.appendChild(btn);
+  }
+  var orderDetailsEl = document.getElementById('order-details');
+  if (orderDetailsEl) {
+    new MutationObserver(addItineraryButton).observe(orderDetailsEl, { childList: true });
+  }
+})();
+</script>
+
+
+
+
+
+
+
+
+  
 </body>
 </html>
