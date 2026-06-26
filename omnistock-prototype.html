@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OmniStock — Tous les stocks. Partout. Pour tous.</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#0A0A0A;--white:#FFFFFF;--gray-50:#F8F8F8;--gray-100:#F0F0F0;
+  --gray-200:#E0E0E0;--gray-400:#AAAAAA;--gray-600:#666666;
+  --green:#00C853;--orange:#FF8F00;--red:#F44336;--gold:#F59E0B;
+  --radius:12px;--radius-sm:8px;
+  --shadow:0 2px 12px rgba(0,0,0,.08);--shadow-lg:0 8px 40px rgba(0,0,0,.12)
+}
+body{font-family:'Inter',sans-serif;background:var(--white);color:var(--black);min-height:100vh;font-size:15px;line-height:1.5}
+.page{display:none}.page.active{display:block}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px solid var(--gray-200);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{font-size:20px;font-weight:900;letter-spacing:-.5px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.nav-logo .dot{width:8px;height:8px;background:var(--green);border-radius:50%;display:inline-block}
+.nav-actions{display:flex;align-items:center;gap:10px}
+.nav-link{font-size:14px;font-weight:500;cursor:pointer;color:var(--gray-600);padding:6px 12px;border-radius:var(--radius-sm);transition:all .15s}
+.nav-link:hover{background:var(--gray-100);color:var(--black)}
+.nav-avatar{width:34px;height:34px;border-radius:50%;background:var(--black);color:var(--white);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;cursor:pointer}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .15s;text-decoration:none;font-family:'Inter',sans-serif}
+.btn-black{background:var(--black);color:var(--white)}.btn-black:hover{background:#222}
+.btn-outline{background:transparent;color:var(--black);border:1.5px solid var(--gray-200)}.btn-outline:hover{border-color:var(--black)}
+.btn-green{background:var(--green);color:var(--white)}.btn-green:hover{background:#00b548}
+.btn-gold{background:var(--gold);color:var(--white)}.btn-gold:hover{background:#d97706}
+.btn-lg{padding:14px 28px;font-size:15px;border-radius:var(--radius)}
+.btn-full{width:100%}
+.btn-google{background:var(--white);color:var(--black);border:1.5px solid var(--gray-200)}.btn-google:hover{border-color:var(--black);background:var(--gray-50)}
+
+/* HERO */
+.hero{padding:72px 24px 48px;text-align:center;max-width:720px;margin:0 auto}
+.hero-eyebrow{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gray-400);margin-bottom:16px}
+.hero h1{font-size:clamp(34px,6vw,62px);font-weight:900;line-height:1.05;letter-spacing:-2px;margin-bottom:16px}
+.hero p{font-size:17px;color:var(--gray-600);max-width:480px;margin:0 auto 32px}
+
+/* LOCATION */
+.location-bar{max-width:700px;margin:0 auto 14px;padding:0 24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.location-pill{display:inline-flex;align-items:center;gap:8px;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:20px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+.location-pill:hover{border-color:var(--black)}
+.loc-dot{width:8px;height:8px;border-radius:50%;background:var(--gray-400);flex-shrink:0}
+.loc-dot.active{background:var(--green)}
+.radius-pill{display:inline-flex;align-items:center;gap:6px;background:var(--gray-100);border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600}
+.radius-pill select{background:none;border:none;font-weight:700;font-size:13px;cursor:pointer;outline:none;font-family:'Inter',sans-serif}
+.loc-count{font-size:13px;color:var(--gray-600);font-weight:500}
+
+/* SEARCH */
+.search-wrap{max-width:700px;margin:0 auto 36px;padding:0 24px}
+.search-bar{display:flex;align-items:center;border:2px solid var(--black);border-radius:var(--radius);overflow:hidden;background:var(--white);box-shadow:var(--shadow-lg)}
+.search-bar input{flex:1;border:none;outline:none;padding:15px 20px;font-size:16px;font-family:'Inter',sans-serif;background:transparent}
+.search-bar button{background:var(--black);color:var(--white);border:none;padding:15px 24px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap}
+.search-bar button:hover{background:#222}
+.suggestions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.stag{background:var(--gray-100);border:none;padding:5px 13px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;color:var(--black);font-family:'Inter',sans-serif}
+.stag:hover{background:var(--black);color:var(--white)}
+
+/* FILTERS */
+.section{max-width:1200px;margin:0 auto;padding:0 24px 60px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.filter-btn{background:var(--white);border:1.5px solid var(--gray-200);padding:7px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;color:var(--black);font-family:'Inter',sans-serif}
+.filter-btn.active,.filter-btn:hover{background:var(--black);color:var(--white);border-color:var(--black)}
+.sort-row{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.sort-label{font-size:13px;color:var(--gray-600);font-weight:500}
+.sort-select{border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);padding:6px 12px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;outline:none;cursor:pointer}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.section-title{font-size:20px;font-weight:800;letter-spacing:-.5px}
+
+/* PRODUCT GRID */
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(256px,1fr));gap:18px}
+.product-card{border:1.5px solid var(--gray-200);border-radius:var(--radius);background:var(--white);overflow:hidden;cursor:pointer;transition:all .2s;position:relative}
+.product-card:hover{border-color:var(--black);box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.product-card.boosted{border-color:var(--gold);box-shadow:0 0 0 2px rgba(245,158,11,.15)}
+.boosted-badge{position:absolute;top:10px;left:10px;background:var(--gold);color:var(--white);font-size:11px;font-weight:800;padding:3px 9px;border-radius:20px;z-index:2}
+.product-img{width:100%;aspect-ratio:4/3;background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:48px;overflow:hidden}
+.product-img img{width:100%;height:100%;object-fit:cover}
+.product-body{padding:14px}
+.product-store{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--gray-400);margin-bottom:3px}
+.product-name{font-size:15px;font-weight:700;margin-bottom:6px;line-height:1.3}
+.product-price-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.product-price{font-size:18px;font-weight:800}
+.product-old-price{font-size:13px;color:var(--gray-400);text-decoration:line-through}
+.product-promo{font-size:12px;font-weight:700;color:var(--red);background:#FFEBEE;padding:2px 7px;border-radius:4px}
+.product-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.product-distance{font-size:12px;color:var(--gray-600);font-weight:500}
+.product-update{font-size:11px;color:var(--gray-400)}
+.card-btn{width:100%;margin-top:10px}
+.rating-row{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--gray-600);margin-bottom:6px}
+.stars-sm{color:var(--gold);font-size:11px}
+
+/* STOCK BADGE */
+.stock-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:20px}
+.stock-badge.high{background:#E8F5E9;color:#2E7D32}
+.stock-badge.low{background:#FFF3E0;color:#E65100}
+.stock-badge.critical{background:#FFEBEE;color:#C62828}
+.stock-dot{width:6px;height:6px;border-radius:50%}
+.stock-dot.high{background:var(--green)}.stock-dot.low{background:var(--orange)}.stock-dot.critical{background:var(--red)}
+
+/* PRODUCT DETAIL */
+.product-detail{max-width:900px;margin:0 auto;padding:32px 24px 80px}
+.back-btn{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;cursor:pointer;color:var(--gray-600);margin-bottom:24px}
+.back-btn:hover{color:var(--black)}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:36px}
+@media(max-width:640px){.detail-grid{grid-template-columns:1fr}}
+.detail-img{width:100%;aspect-ratio:1;background:var(--gray-100);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:80px;overflow:hidden}
+.detail-img img{width:100%;height:100%;object-fit:cover}
+.detail-info{display:flex;flex-direction:column;gap:14px}
+.detail-title{font-size:24px;font-weight:900;letter-spacing:-.5px}
+.detail-price-row{display:flex;align-items:baseline;gap:12px}
+.detail-price{font-size:30px;font-weight:900}
+.detail-old{font-size:15px;color:var(--gray-400);text-decoration:line-through}
+.detail-promo-badge{font-size:13px;font-weight:700;color:var(--red);background:#FFEBEE;padding:4px 10px;border-radius:6px}
+.detail-stock-row{display:flex;align-items:center;justify-content:space-between}
+.detail-address{font-size:13px;color:var(--gray-600);border-top:1px solid var(--gray-200);padding-top:14px}
+.detail-address strong{font-weight:700;color:var(--black);display:block;margin-bottom:4px}
+.buy-box{background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:var(--radius);padding:18px}
+.buy-box-title{font-size:14px;font-weight:700;margin-bottom:10px}
+
+/* DELIVERY OPTIONS */
+.delivery-options{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.delivery-opt{border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);padding:10px 8px;text-align:center;cursor:pointer;transition:all .15s}
+.delivery-opt:hover,.delivery-opt.selected{border-color:var(--black);background:var(--black);color:var(--white)}
+.delivery-opt.disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+.delivery-opt .dopt-icon{font-size:22px;display:block;margin-bottom:4px}
+.delivery-opt .dopt-label{font-size:11px;font-weight:700}
+.delivery-opt .dopt-price{font-size:11px;opacity:.7}
+
+/* MAP */
+.map-embed{width:100%;height:180px;border-radius:var(--radius-sm);border:1.5px solid var(--gray-200);overflow:hidden;margin-top:10px}
+.map-embed iframe{width:100%;height:100%;border:none}
+.map-link{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:var(--black);text-decoration:none;margin-top:6px}
+.map-link:hover{text-decoration:underline}
+.distance-chip{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;background:var(--gray-100);padding:4px 12px;border-radius:20px}
+.out-of-range{background:#FFF3E0;border:1.5px solid #FFE0B2;border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:#E65100;font-weight:600;margin-top:8px}
+
+/* REVIEWS */
+.reviews-section{margin-top:36px;border-top:1.5px solid var(--gray-200);padding-top:28px}
+.reviews-title{font-size:18px;font-weight:800;margin-bottom:18px}
+.reviews-summary{display:flex;align-items:center;gap:16px;background:var(--gray-50);border-radius:var(--radius);padding:18px;margin-bottom:20px}
+.reviews-big-score{font-size:44px;font-weight:900;line-height:1}
+.review-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.review-bar-label{font-size:12px;color:var(--gray-600);width:10px}
+.review-bar-track{flex:1;height:6px;background:var(--gray-200);border-radius:3px;overflow:hidden}
+.review-bar-fill{height:100%;background:var(--gold);border-radius:3px;transition:width .4s}
+.review-bar-count{font-size:12px;color:var(--gray-400);width:20px;text-align:right}
+.review-card{border:1.5px solid var(--gray-100);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px}
+.review-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.review-author{font-size:13px;font-weight:700}
+.review-date{font-size:11px;color:var(--gray-400)}
+.review-stars{color:var(--gold);font-size:14px;margin-bottom:5px}
+.review-text{font-size:14px;color:var(--gray-600);line-height:1.5}
+.add-review-form{background:var(--gray-50);border-radius:var(--radius);padding:18px;margin-top:18px}
+.add-review-title{font-size:15px;font-weight:700;margin-bottom:10px}
+.star-picker{display:flex;gap:6px;margin-bottom:10px}
+.star-pick{font-size:26px;cursor:pointer;filter:grayscale(1);transition:filter .15s,transform .1s}
+.star-pick:hover,.star-pick.selected{filter:none;transform:scale(1.15)}
+.no-reviews{text-align:center;padding:28px;color:var(--gray-400);font-size:14px}
+
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:16px;padding:32px;width:100%;max-width:440px;box-shadow:var(--shadow-lg);max-height:90vh;overflow-y:auto}
+.modal-wide{max-width:560px}
+.modal-close{float:right;background:none;border:none;font-size:22px;cursor:pointer;color:var(--gray-400);margin-top:-6px}
+.modal h2{font-size:22px;font-weight:900;letter-spacing:-.5px;margin-bottom:5px}
+.modal p.modal-sub{font-size:14px;color:var(--gray-600);margin-bottom:22px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);padding:10px 14px;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;background:var(--white)}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--black)}
+.divider{display:flex;align-items:center;gap:12px;margin:18px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--gray-200)}
+.divider span{font-size:12px;color:var(--gray-400);font-weight:600}
+.modal-switch{text-align:center;font-size:13px;color:var(--gray-600);margin-top:14px}
+.modal-switch a{font-weight:700;cursor:pointer;color:var(--black);text-decoration:underline}
+.alert{padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;margin-bottom:14px}
+.alert-error{background:#FFEBEE;color:#C62828;border:1px solid #FFCDD2}
+.alert-success{background:#E8F5E9;color:#2E7D32;border:1px solid #C8E6C9}
+.form-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.form-grid2{grid-template-columns:1fr}}
+
+/* ORDER CONFIRMATION */
+.order-confirm{max-width:520px;margin:60px auto;padding:0 24px;text-align:center}
+.order-icon{font-size:60px;margin-bottom:18px}
+.order-confirm h2{font-size:26px;font-weight:900;letter-spacing:-1px;margin-bottom:8px}
+.order-confirm>p{color:var(--gray-600);margin-bottom:28px}
+.order-card{border:2px solid var(--black);border-radius:var(--radius);padding:22px;text-align:left;margin-bottom:18px}
+.order-card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--gray-400);margin-bottom:14px}
+.order-id-big{font-size:20px;font-weight:900;letter-spacing:2px;word-break:break-all;margin-bottom:6px}
+.order-code-big{font-size:44px;font-weight:900;letter-spacing:10px;margin:14px 0;color:var(--black)}
+.order-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--gray-100);font-size:14px}
+.order-row:last-child{border-bottom:none}
+.order-row span:first-child{color:var(--gray-600)}
+.order-row span:last-child{font-weight:700}
+.qr-box{width:120px;height:120px;margin:16px auto;border:2px solid var(--black);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:52px;background:var(--gray-50)}
+.delivery-info-box{background:#E8F5E9;border:1.5px solid #C8E6C9;border-radius:var(--radius-sm);padding:12px 16px;font-size:13px;color:#2E7D32;font-weight:600;margin-bottom:14px}
+.pickup-info-box{background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);padding:12px 16px;font-size:13px;color:var(--gray-600);margin-bottom:14px}
+
+/* DASHBOARD */
+.dashboard{max-width:1100px;margin:0 auto;padding:32px 24px 80px}
+.dashboard-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+.dashboard-title{font-size:24px;font-weight:900;letter-spacing:-1px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-bottom:32px}
+.stat-card{border:1.5px solid var(--gray-200);border-radius:var(--radius);padding:18px}
+.stat-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-400);margin-bottom:6px}
+.stat-value{font-size:28px;font-weight:900;letter-spacing:-1px}
+.stat-sub{font-size:12px;color:var(--gray-600);margin-top:3px}
+.table-wrap{border:1.5px solid var(--gray-200);border-radius:var(--radius);overflow:hidden;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:540px}
+th{background:var(--gray-50);padding:11px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-600);border-bottom:1px solid var(--gray-200)}
+td{padding:12px 16px;border-bottom:1px solid var(--gray-100);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.status-badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:3px 9px;border-radius:12px}
+.status-badge.pending{background:#FFF8E1;color:#F57F17}
+.status-badge.ready{background:#E8F5E9;color:#2E7D32}
+.status-badge.done{background:var(--gray-100);color:var(--gray-600)}
+.status-badge.delivering{background:#E3F2FD;color:#1565C0}
+
+/* WALLET */
+.wallet-card{background:var(--black);color:var(--white);border-radius:16px;padding:26px;margin-bottom:22px}
+.wallet-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;opacity:.6;margin-bottom:6px}
+.wallet-amount{font-size:40px;font-weight:900;letter-spacing:-2px}
+.wallet-sub{font-size:13px;opacity:.6;margin-top:6px}
+
+/* SUBSCRIPTION */
+.sub-card{border:2px solid var(--gray-200);border-radius:var(--radius);padding:24px;position:relative;transition:all .2s}
+.sub-card.active-plan{border-color:var(--gold);background:#FFFBEB}
+.sub-card-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--white);font-size:11px;font-weight:800;padding:3px 12px;border-radius:20px;white-space:nowrap}
+.sub-price{font-size:32px;font-weight:900;letter-spacing:-1px}
+.sub-price span{font-size:14px;font-weight:500;color:var(--gray-600)}
+.sub-features{list-style:none;margin:16px 0;display:flex;flex-direction:column;gap:8px}
+.sub-features li{font-size:14px;display:flex;align-items:center;gap:8px}
+.sub-features li::before{content:'✓';font-weight:900;color:var(--green);flex-shrink:0}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1.5px solid var(--gray-200);margin-bottom:24px;overflow-x:auto}
+.tab{padding:11px 18px;font-size:14px;font-weight:600;cursor:pointer;color:var(--gray-600);border-bottom:2px solid transparent;margin-bottom:-1.5px;transition:all .15s;white-space:nowrap}
+.tab.active{color:var(--black);border-bottom-color:var(--black)}
+.tab-content{display:none}.tab-content.active{display:block}
+
+/* ACCOUNT */
+.account-section{max-width:700px;margin:0 auto;padding:32px 24px 80px}
+.profile-header{display:flex;align-items:center;gap:18px;margin-bottom:32px}
+.profile-avatar-lg{width:68px;height:68px;border-radius:50%;background:var(--black);color:var(--white);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;flex-shrink:0}
+.profile-name{font-size:20px;font-weight:800}
+.profile-email{font-size:14px;color:var(--gray-600)}
+.section-card{border:1.5px solid var(--gray-200);border-radius:var(--radius);overflow:hidden;margin-bottom:10px}
+.section-card-header{padding:14px 18px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);font-size:14px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.section-card-body{padding:18px}
+
+/* IMG UPLOAD */
+.img-upload-area{border:2px dashed var(--gray-200);border-radius:var(--radius-sm);padding:28px;text-align:center;cursor:pointer;transition:border-color .15s}
+.img-upload-area:hover{border-color:var(--black)}
+.img-upload-area input{display:none}
+.img-b64-preview{max-width:180px;max-height:180px;margin-top:10px;border-radius:var(--radius-sm)}
+.gaspi-badge{position:absolute;top:10px;right:10px;background:var(--green);color:var(--white);font-size:11px;font-weight:800;padding:3px 9px;border-radius:20px}
+
+/* MISC */
+.spinner{width:30px;height:30px;border:3px solid var(--gray-200);border-top-color:var(--black);border-radius:50%;animation:spin .7s linear infinite;margin:40px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-state{text-align:center;padding:56px 24px;color:var(--gray-400)}
+.empty-state .icon{font-size:44px;margin-bottom:14px}
+.empty-state p{font-size:15px}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--black);color:var(--white);padding:11px 22px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;z-index:999;transition:transform .3s;white-space:nowrap}
+#toast.show{transform:translateX(-50%) translateY(0)}
+.inline-loader{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:var(--white);border-radius:50%;animation:spin .7s linear infinite}
+.no-items{padding:36px;text-align:center;color:var(--gray-400);font-size:14px}
+.pay-icon{background:var(--white);border:1px solid var(--gray-200);border-radius:6px;padding:5px 11px;font-size:12px;font-weight:600}
+
+@media(max-width:640px){
+  nav{padding:0 14px}
+  .hero{padding:44px 16px 36px}
+  .section{padding:0 14px 40px}
+  .product-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .delivery-options{grid-template-columns:1fr 1fr 1fr}
+}
+@media(max-width:380px){.product-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo" onclick="goHome()">
+    <span class="dot"></span><span>OMNISTOCK</span>
+  </div>
+  <div class="nav-actions">
+    <span class="nav-link" onclick="showPage('home')">Accueil</span>
+    <span class="nav-link" id="nav-merchant-link" style="display:none" onclick="showPage('merchant')">Commerçant</span>
+    <span class="nav-link" id="nav-account-link" style="display:none" onclick="showPage('account')">Mon compte</span>
+    <span class="btn btn-outline" id="btn-login" onclick="openModal('login')">Connexion</span>
+    <span class="btn btn-black" id="btn-register" onclick="openModal('register')">S'inscrire</span>
+    <div class="nav-avatar" id="nav-avatar" style="display:none" onclick="showPage('account')"></div>
+  </div>
+</nav>
+
+<!-- ════ HOME ════ -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-eyebrow">Le moteur de recherche des stocks réels</div>
+    <h1>Trouvez. Achetez.<br>Récupérez.</h1>
+    <p>Chaque produit affiché est réellement disponible. Livraison ou retrait en magasin.</p>
+  </div>
+
+  <div class="location-bar">
+    <div class="location-pill" onclick="requestLocation()" id="location-pill">
+      <span class="loc-dot" id="loc-dot"></span>
+      <span id="loc-text">📍 Activer ma position</span>
+    </div>
+    <div class="radius-pill">
+      Rayon&nbsp;:&nbsp;<select id="radius-select" onchange="applySortAndRender()">
+        <option value="10">10 km</option>
+        <option value="30" selected>30 km</option>
+        <option value="50">50 km</option>
+        <option value="100">100 km</option>
+        <option value="0">Tout afficher</option>
+      </select>
+    </div>
+    <span class="loc-count" id="loc-count"></span>
+  </div>
+
+  <div class="search-wrap">
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="PS5, Air Force 1 taille 43, Perceuse Bosch…" onkeydown="if(event.key==='Enter')doSearch()">
+      <button onclick="doSearch()">Rechercher</button>
+    </div>
+    <div class="suggestions">
+      <button class="stag" onclick="qs('PS5')">PS5</button>
+      <button class="stag" onclick="qs('Nintendo Switch')">Nintendo Switch</button>
+      <button class="stag" onclick="qs('Sneakers')">Sneakers</button>
+      <button class="stag" onclick="qs('iPhone')">iPhone</button>
+      <button class="stag" onclick="qs('Perceuse')">Perceuse</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="filters">
+      <button class="filter-btn active" onclick="filterCat('all',this)">Tout</button>
+      <button class="filter-btn" onclick="filterCat('electronique',this)">Électronique</button>
+      <button class="filter-btn" onclick="filterCat('gaming',this)">Gaming</button>
+      <button class="filter-btn" onclick="filterCat('mode',this)">Mode</button>
+      <button class="filter-btn" onclick="filterCat('sport',this)">Sport</button>
+      <button class="filter-btn" onclick="filterCat('outils',this)">Outils</button>
+      <button class="filter-btn" onclick="filterCat('anti-gaspi',this)">♻️ Anti-gaspi</button>
+      <button class="filter-btn" onclick="filterCat('luxe',this)">💎 Luxe</button>
+    </div>
+    <div class="sort-row">
+      <span class="sort-label">Trier par :</span>
+      <select class="sort-select" id="sort-select" onchange="applySortAndRender()">
+        <option value="boost">Mis en avant</option>
+        <option value="recent">Plus récents</option>
+        <option value="distance">Distance</option>
+        <option value="price-asc">Prix croissant</option>
+        <option value="price-desc">Prix décroissant</option>
+        <option value="rating">Mieux notés</option>
+      </select>
+    </div>
+    <div class="section-header">
+      <div class="section-title" id="results-title">🔥 Produits populaires</div>
+    </div>
+    <div id="product-grid" class="product-grid"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<!-- ════ PRODUCT DETAIL ════ -->
+<div class="page" id="page-product">
+  <div class="product-detail">
+    <div class="back-btn" onclick="showPage('home')">← Retour</div>
+    <div id="product-detail-content"></div>
+    <div class="reviews-section" id="reviews-section" style="display:none">
+      <div class="reviews-title">Avis clients</div>
+      <div id="reviews-summary-block"></div>
+      <div id="reviews-list"></div>
+      <div class="add-review-form" id="add-review-form" style="display:none">
+        <div class="add-review-title">Laisser un avis</div>
+        <div class="star-picker" id="star-picker">
+          <span class="star-pick" onclick="pickStar(1)">⭐</span>
+          <span class="star-pick" onclick="pickStar(2)">⭐</span>
+          <span class="star-pick" onclick="pickStar(3)">⭐</span>
+          <span class="star-pick" onclick="pickStar(4)">⭐</span>
+          <span class="star-pick" onclick="pickStar(5)">⭐</span>
+        </div>
+        <div class="form-group"><textarea id="review-text" rows="3" placeholder="Partagez votre expérience…"></textarea></div>
+        <button class="btn btn-black" onclick="submitReview()" id="review-submit-btn">Publier l'avis</button>
+      </div>
+      <div id="review-login-prompt" style="display:none;margin-top:14px;font-size:14px;color:var(--gray-600)">
+        <a onclick="openModal('login')" style="font-weight:700;cursor:pointer;text-decoration:underline">Connectez-vous</a> pour laisser un avis.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ ORDER CONFIRMATION ════ -->
+<div class="page" id="page-order">
+  <div class="order-confirm">
+    <div class="order-icon">✅</div>
+    <h2>Commande confirmée !</h2>
+    <p>Votre produit est réservé.</p>
+    <div id="order-details"></div>
+    <button class="btn btn-black btn-full" onclick="showPage('account')">Voir mes commandes</button>
+  </div>
+</div>
+
+<!-- ════ MERCHANT ════ -->
+<div class="page" id="page-merchant">
+  <div class="dashboard">
+    <div class="dashboard-header">
+      <div class="dashboard-title">Espace commerçant</div>
+      <button class="btn btn-black" onclick="openAddProductModal()">+ Ajouter un produit</button>
+    </div>
+    <div class="wallet-card">
+      <div class="wallet-label">Solde disponible</div>
+      <div class="wallet-amount" id="wallet-amount">0,00 €</div>
+      <div class="wallet-sub">Versé après validation · Commission 12%</div>
+      <div style="margin-top:18px">
+        <button class="btn" style="border:1px solid rgba(255,255,255,.3);color:var(--white);background:rgba(255,255,255,.1)" onclick="requestWithdraw()">Retirer les fonds</button>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Commandes</div><div class="stat-value" id="stat-orders">0</div><div class="stat-sub">Total</div></div>
+      <div class="stat-card"><div class="stat-label">Chiffre d'affaires</div><div class="stat-value" id="stat-ca">0 €</div><div class="stat-sub">Net commission déduite</div></div>
+      <div class="stat-card"><div class="stat-label">Produits actifs</div><div class="stat-value" id="stat-products">0</div><div class="stat-sub">En stock</div></div>
+      <div class="stat-card"><div class="stat-label">Note moyenne</div><div class="stat-value" id="stat-rating">—</div><div class="stat-sub" id="stat-rating-sub">Aucun avis</div></div>
+      <div class="stat-card"><div class="stat-label">Abonnement</div><div class="stat-value" id="stat-sub" style="font-size:18px">Gratuit</div><div class="stat-sub"><a onclick="showPage('subscription')" style="cursor:pointer;font-weight:700;text-decoration:underline">Passer Pro →</a></div></div>
+    </div>
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('tab-orders',this)">Commandes</div>
+      <div class="tab" onclick="switchTab('tab-products',this)">Mes produits</div>
+      <div class="tab" onclick="switchTab('tab-reviews-merchant',this)">Avis reçus</div>
+    </div>
+    <div class="tab-content active" id="tab-orders">
+      <div class="table-wrap">
+        <table><thead><tr><th>Commande</th><th>Produit</th><th>Livraison</th><th>Montant</th><th>Statut</th><th>Action</th></tr></thead>
+        <tbody id="orders-tbody"><tr><td colspan="6" class="no-items">Aucune commande</td></tr></tbody></table>
+      </div>
+    </div>
+    <div class="tab-content" id="tab-products">
+      <div class="table-wrap">
+        <table><thead><tr><th>Produit</th><th>Catégorie</th><th>Prix</th><th>Stock</th><th>Mis à jour</th><th>Actions</th></tr></thead>
+        <tbody id="products-tbody"><tr><td colspan="6" class="no-items">Aucun produit</td></tr></tbody></table>
+      </div>
+    </div>
+    <div class="tab-content" id="tab-reviews-merchant">
+      <div id="merchant-reviews-list"><div class="no-items">Aucun avis reçu</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ SUBSCRIPTION PAGE ════ -->
+<div class="page" id="page-subscription">
+  <div style="max-width:600px;margin:0 auto;padding:40px 24px 80px">
+    <div class="back-btn" onclick="showPage('merchant')">← Retour</div>
+    <h2 style="font-size:28px;font-weight:900;letter-spacing:-1px;margin-bottom:8px">Abonnement Pro</h2>
+    <p style="color:var(--gray-600);margin-bottom:32px">Un seul abonnement pour booster votre visibilité sur OmniStock.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px">
+      <div class="sub-card">
+        <div class="sub-price">Gratuit <span>/mois</span></div>
+        <ul class="sub-features" style="margin-top:14px">
+          <li>Vos produits visibles</li>
+          <li>Gestion des stocks</li>
+          <li>Système de commandes</li>
+          <li>Système d'avis</li>
+          <li style="opacity:.4;text-decoration:line-through">Mise en avant</li>
+          <li style="opacity:.4;text-decoration:line-through">Badge Vérifié</li>
+          <li style="opacity:.4;text-decoration:line-through">Priorité dans les résultats</li>
+        </ul>
+        <div id="free-active" class="btn btn-outline btn-full" style="margin-top:16px;pointer-events:none">Plan actuel</div>
+      </div>
+      <div class="sub-card" id="pro-sub-card">
+        <div class="sub-card-badge">⚡ RECOMMANDÉ</div>
+        <div class="sub-price">99 € <span>/mois</span></div>
+        <ul class="sub-features" style="margin-top:14px">
+          <li>Tout le plan gratuit</li>
+          <li><strong>Produits mis en avant ⚡</strong></li>
+          <li><strong>Badge Vérifié ✓</strong></li>
+          <li><strong>Priorité dans les résultats</strong></li>
+          <li><strong>Statistiques avancées</strong></li>
+          <li><strong>Support prioritaire</strong></li>
+          <li><strong>Rayon de livraison étendu</strong></li>
+        </ul>
+        <button class="btn btn-gold btn-full" style="margin-top:16px" onclick="subscribePro()" id="sub-pro-btn">S'abonner Pro</button>
+      </div>
+    </div>
+    <div style="background:var(--gray-50);border-radius:var(--radius);padding:20px;font-size:14px;color:var(--gray-600)">
+      <strong style="color:var(--black)">Comment fonctionne la mise en avant ?</strong><br><br>
+      Vos produits apparaissent en tête des résultats avec un badge ⚡ et une bordure dorée. Ils sont prioritaires dans toutes les recherches et tous les filtres. Sans abonnement, vos produits apparaissent dans l'ordre standard.
+    </div>
+  </div>
+</div>
+
+<!-- ════ ACCOUNT ════ -->
+<div class="page" id="page-account">
+  <div class="account-section">
+    <div class="profile-header">
+      <div class="profile-avatar-lg" id="profile-avatar-lg">?</div>
+      <div>
+        <div class="profile-name" id="profile-name">—</div>
+        <div class="profile-email" id="profile-email">—</div>
+        <button class="btn btn-outline" style="margin-top:10px;font-size:13px;padding:6px 12px" onclick="openModal('merchant-register')">Devenir commerçant</button>
+      </div>
+    </div>
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('tab-my-orders',this)">Mes commandes</div>
+      <div class="tab" onclick="switchTab('tab-my-reviews',this)">Mes avis</div>
+    </div>
+    <div class="tab-content active" id="tab-my-orders"><div id="my-orders-list"><div class="spinner"></div></div></div>
+    <div class="tab-content" id="tab-my-reviews"><div id="my-reviews-list"><div class="spinner"></div></div></div>
+    <div style="margin-top:24px;border-top:1px solid var(--gray-200);padding-top:24px">
+      <button class="btn btn-outline" onclick="doLogout()">Se déconnecter</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ MODALS ════ -->
+
+<!-- LOGIN -->
+<div class="modal-overlay" id="modal-login">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('login')">×</button>
+    <h2>Connexion</h2><p class="modal-sub">Bienvenue sur OmniStock</p>
+    <div id="login-alert"></div>
+    <button class="btn btn-google btn-full" onclick="loginGoogle()" style="margin-bottom:14px">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continuer avec Google
+    </button>
+    <div class="divider"><span>ou par email</span></div>
+    <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="vous@email.com"></div>
+    <div class="form-group"><label>Mot de passe</label><input type="password" id="login-password" placeholder="••••••••"></div>
+    <button class="btn btn-black btn-full" onclick="doLogin()" id="login-btn">Se connecter</button>
+    <div class="modal-switch">Pas de compte ? <a onclick="switchModal('login','register')">S'inscrire</a></div>
+  </div>
+</div>
+
+<!-- REGISTER -->
+<div class="modal-overlay" id="modal-register">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('register')">×</button>
+    <h2>Créer un compte</h2><p class="modal-sub">Rejoignez OmniStock gratuitement</p>
+    <div id="register-alert"></div>
+    <button class="btn btn-google btn-full" onclick="loginGoogle()" style="margin-bottom:14px">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continuer avec Google
+    </button>
+    <div class="divider"><span>ou par email</span></div>
+    <div class="form-group"><label>Prénom & Nom</label><input type="text" id="register-name" placeholder="Jean Dupont"></div>
+    <div class="form-group"><label>Email</label><input type="email" id="register-email" placeholder="vous@email.com"></div>
+    <div class="form-group"><label>Mot de passe</label><input type="password" id="register-password" placeholder="8 caractères minimum"></div>
+    <button class="btn btn-black btn-full" onclick="doRegister()" id="register-btn">Créer mon compte</button>
+    <div class="modal-switch">Déjà un compte ? <a onclick="switchModal('register','login')">Se connecter</a></div>
+  </div>
+</div>
+
+<!-- MERCHANT REGISTER -->
+<div class="modal-overlay" id="modal-merchant-register">
+  <div class="modal modal-wide">
+    <button class="modal-close" onclick="closeModal('merchant-register')">×</button>
+    <h2>Devenir commerçant</h2><p class="modal-sub">Créez votre espace vendeur OmniStock</p>
+    <div id="merchant-alert"></div>
+    <div class="form-group"><label>Nom du magasin *</label><input type="text" id="m-store-name" placeholder="Tech Store Paris"></div>
+    <div class="form-group"><label>Adresse complète *</label><input type="text" id="m-store-address" placeholder="12 rue du Commerce, 75001 Paris"></div>
+    <div class="form-grid2">
+      <div class="form-group"><label>Latitude *</label><input type="number" id="m-store-lat" placeholder="48.8566" step="any"></div>
+      <div class="form-group"><label>Longitude *</label><input type="number" id="m-store-lng" placeholder="2.3522" step="any"></div>
+    </div>
+    <p style="font-size:12px;color:var(--gray-400);margin-top:-8px;margin-bottom:12px">Trouvez vos coordonnées sur <a href="https://www.openstreetmap.org" target="_blank" style="color:var(--black);font-weight:600">openstreetmap.org</a> (clic droit → "Afficher l'adresse")</p>
+    <div class="form-grid2">
+      <div class="form-group"><label>Téléphone</label><input type="tel" id="m-store-phone" placeholder="01 23 45 67 89"></div>
+      <div class="form-group"><label>Horaires</label><input type="text" id="m-store-hours" placeholder="Lun-Sam 9h-19h"></div>
+    </div>
+    <div class="form-group"><label>Catégorie principale</label>
+      <select id="m-store-category">
+        <option value="electronique">Électronique</option><option value="gaming">Gaming</option>
+        <option value="mode">Mode</option><option value="sport">Sport</option>
+        <option value="outils">Outils</option><option value="alimentaire">Alimentaire / Anti-gaspi</option>
+        <option value="luxe">Luxe</option><option value="autre">Autre</option>
+      </select>
+    </div>
+    <button class="btn btn-black btn-full" onclick="doMerchantRegister()" id="merchant-register-btn">Créer mon espace commerçant</button>
+  </div>
+</div>
+
+<!-- ADD PRODUCT -->
+<div class="modal-overlay" id="modal-add-product">
+  <div class="modal modal-wide">
+    <button class="modal-close" onclick="closeModal('add-product')">×</button>
+    <h2>Ajouter un produit</h2><p class="modal-sub">Visible immédiatement après publication.</p>
+    <div id="add-product-alert"></div>
+    <div class="img-upload-area" onclick="document.getElementById('product-img-input').click()">
+      <input type="file" id="product-img-input" accept="image/*" onchange="handleImgUpload(event)">
+      <div id="img-upload-label">📷 Cliquez pour ajouter une photo</div>
+      <img id="img-b64-preview" class="img-b64-preview" style="display:none">
+    </div>
+    <div class="form-grid2" style="margin-top:14px">
+      <div class="form-group"><label>Nom *</label><input type="text" id="p-name" placeholder="PlayStation 5"></div>
+      <div class="form-group"><label>Catégorie *</label>
+        <select id="p-category">
+          <option value="electronique">Électronique</option><option value="gaming">Gaming</option>
+          <option value="mode">Mode</option><option value="sport">Sport</option>
+          <option value="outils">Outils</option><option value="anti-gaspi">Anti-gaspi</option>
+          <option value="luxe">Luxe</option><option value="autre">Autre</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Prix *</label><input type="number" id="p-price" placeholder="549" step="0.01"></div>
+      <div class="form-group"><label>Ancien prix</label><input type="number" id="p-old-price" placeholder="649" step="0.01"></div>
+      <div class="form-group"><label>Quantité *</label><input type="number" id="p-qty" placeholder="5" min="1"></div>
+    </div>
+    <div class="form-group"><label>Description</label><textarea id="p-desc" rows="2" placeholder="Description courte…"></textarea></div>
+    <button class="btn btn-black btn-full" onclick="doAddProduct()" id="add-product-btn">Publier le produit</button>
+  </div>
+</div>
+
+<!-- PAYMENT / DELIVERY -->
+<div class="modal-overlay" id="modal-payment">
+  <div class="modal modal-wide">
+    <button class="modal-close" onclick="closeModal('payment')">×</button>
+    <h2>Finaliser l'achat</h2>
+    <p class="modal-sub" id="payment-summary"></p>
+
+    <!-- DELIVERY CHOICE -->
+    <div id="delivery-section">
+      <div style="font-size:13px;font-weight:700;margin-bottom:10px">Mode de récupération</div>
+      <div class="delivery-options" id="delivery-options">
+        <div class="delivery-opt selected" data-mode="pickup" onclick="selectDelivery('pickup',this)">
+          <span class="dopt-icon">🏪</span>
+          <div class="dopt-label">Retrait</div>
+          <div class="dopt-price">Gratuit</div>
+        </div>
+        <div class="delivery-opt" data-mode="relay" id="dopt-relay" onclick="selectDelivery('relay',this)">
+          <span class="dopt-icon">📦</span>
+          <div class="dopt-label">Point relais</div>
+          <div class="dopt-price">3,99 €</div>
+        </div>
+        <div class="delivery-opt" data-mode="home" id="dopt-home" onclick="selectDelivery('home',this)">
+          <span class="dopt-icon">🏠</span>
+          <div class="dopt-label">À domicile</div>
+          <div class="dopt-price">6,99 €</div>
+        </div>
+      </div>
+      <div id="relay-address-block" style="display:none;margin-bottom:12px">
+        <div class="form-group"><label>Adresse du point relais</label>
+          <select id="relay-select">
+            <option value="Relais Colis - 12 rue de la Paix, 75001 Paris">Relais Colis — 12 rue de la Paix, 75001 Paris</option>
+            <option value="Mondial Relay - 4 bd Voltaire, 75011 Paris">Mondial Relay — 4 bd Voltaire, 75011 Paris</option>
+            <option value="Chronopost - 8 av de la République, 75011 Paris">Chronopost — 8 av de la République, 75011 Paris</option>
+          </select>
+        </div>
+      </div>
+      <div id="home-address-block" style="display:none;margin-bottom:12px">
+        <div class="form-group"><label>Adresse de livraison</label><input type="text" id="home-address" placeholder="12 rue de la Paix, 75001 Paris"></div>
+        <div class="form-group"><label>Complément (optionnel)</label><input type="text" id="home-address2" placeholder="Bât B, étage 3…"></div>
+      </div>
+      <div id="no-delivery-notice" style="display:none" class="alert alert-error">
+        ⚠️ La livraison n'est pas disponible pour les produits Luxe et Anti-gaspi / alimentaires. Retrait en magasin uniquement.
+      </div>
+    </div>
+
+    <!-- PAYMENT -->
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--gray-200)">
+      <div style="font-size:13px;font-weight:700;margin-bottom:10px">Moyen de paiement</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <span class="pay-icon">💳 CB</span><span class="pay-icon">🍎 Apple Pay</span>
+        <span class="pay-icon">G Pay</span><span class="pay-icon">PayPal</span>
+      </div>
+      <div class="form-group">
+        <select id="payment-method" onchange="toggleCardFields()">
+          <option value="card">Carte bancaire</option><option value="apple">Apple Pay</option>
+          <option value="google">Google Pay</option><option value="paypal">PayPal</option>
+        </select>
+      </div>
+      <div id="card-fields">
+        <div class="form-group"><label>Numéro de carte</label><input type="text" placeholder="4242 4242 4242 4242" maxlength="19" oninput="formatCard(this)"></div>
+        <div class="form-grid2">
+          <div class="form-group"><label>Expiration</label><input type="text" placeholder="MM/AA" maxlength="5"></div>
+          <div class="form-group"><label>CVV</label><input type="text" placeholder="123" maxlength="3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOTAL -->
+    <div style="background:var(--gray-50);border-radius:var(--radius-sm);padding:14px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:4px">
+        <span>Produit</span><span id="total-product">—</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:4px">
+        <span>Livraison</span><span id="total-delivery">Gratuit</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:800;margin-top:8px;padding-top:8px;border-top:1px solid var(--gray-200)">
+        <span>Total</span><span id="total-final">—</span>
+      </div>
+    </div>
+
+    <div id="payment-alert"></div>
+    <button class="btn btn-black btn-full btn-lg" onclick="confirmPayment()" id="pay-btn">Payer et réserver</button>
+    <p style="font-size:12px;color:var(--gray-400);text-align:center;margin-top:10px">🔒 Paiement sécurisé — Fonds libérés au commerçant après retrait</p>
+  </div>
+</div>
+
+<!-- VALIDATE ORDER -->
+<div class="modal-overlay" id="modal-validate-order">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('validate-order')">×</button>
+    <h2>Valider le retrait</h2>
+    <p class="modal-sub">Vérifiez QR code + pièce d'identité, puis saisissez le code secret du client.</p>
+    <div class="form-group">
+      <label>Code secret client</label>
+      <input type="text" id="validate-code-input" placeholder="4827" maxlength="4" style="font-size:28px;letter-spacing:10px;text-align:center">
+    </div>
+    <div id="validate-alert"></div>
+    <button class="btn btn-green btn-full" onclick="doValidateOrder()">✓ Valider et libérer les fonds</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, push, set, get, update, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyATOTjnvnkjUJiXzEU-N2cNPqIrpJ3JXSE",
+  authDomain: "omnistock-969cf.firebaseapp.com",
+  projectId: "omnistock-969cf",
+  storageBucket: "omnistock-969cf.firebasestorage.app",
+  messagingSenderId: "978114532560",
+  appId: "1:978114532560:web:603cedbd8f43031e48fad5",
+  databaseURL: "https://omnistock-969cf-default-rtdb.europe-west1.firebasedatabase.app"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+const gProvider = new GoogleAuthProvider();
+
+// ── CATEGORIES QUI INTERDISENT LA LIVRAISON ──
+const NO_DELIVERY_CATS = ['luxe', 'anti-gaspi', 'alimentaire'];
+
+// ── STATE ──
+let currentUser = null, currentMerchant = null;
+let allProducts = [], filteredProducts = [];
+let currentProduct = null, currentCategory = 'all';
+let userLat = null, userLng = null;
+let selectedStars = 0, imgBase64 = null, validateOrderId = null;
+let selectedDelivery = 'pickup', deliveryCost = 0;
+
+// ── GEO ──
+function haversine(a, b, c, d) {
+  const R=6371, dLat=(c-a)*Math.PI/180, dLng=(d-b)*Math.PI/180;
+  const x=Math.sin(dLat/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+function fmtDist(km) { return km<1?`${Math.round(km*1000)} m`:`${km.toFixed(1)} km`; }
+
+window.requestLocation = async function() {
+  const text = document.getElementById('loc-text');
+  text.textContent = '⏳ Localisation…';
+  if (!navigator.geolocation) { text.textContent = '❌ Non supporté'; return; }
+  navigator.geolocation.getCurrentPosition(async pos => {
+    userLat = pos.coords.latitude;
+    userLng = pos.coords.longitude;
+    document.getElementById('loc-dot').classList.add('active');
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${userLat}&lon=${userLng}&format=json`);
+      const d = await r.json();
+      const city = d.address.city||d.address.town||d.address.village||d.address.suburb||'Position active';
+      text.innerHTML = `<strong>${city}</strong>&nbsp;·&nbsp;Position active`;
+    } catch { text.textContent = '📍 Position active'; }
+    await loadProducts(document.getElementById('search-input').value, currentCategory);
+  }, () => { text.textContent = '❌ Position refusée'; });
+};
+
+// ── AUTH ──
+onAuthStateChanged(auth, async user => {
+  currentUser = user;
+  if (user) { await loadMerchantData(user.uid); }
+  updateNavUI();
+});
+
+function updateNavUI() {
+  const ok = !!currentUser;
+  document.getElementById('btn-login').style.display = ok ? 'none' : '';
+  document.getElementById('btn-register').style.display = ok ? 'none' : '';
+  document.getElementById('nav-avatar').style.display = ok ? 'flex' : 'none';
+  document.getElementById('nav-merchant-link').style.display = (ok && currentMerchant) ? 'inline-flex' : 'none';
+  document.getElementById('nav-account-link').style.display = ok ? 'inline-flex' : 'none';
+  if (currentUser) {
+    const init = (currentUser.displayName||currentUser.email||'?').slice(0,2).toUpperCase();
+    ['nav-avatar','profile-avatar-lg'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=init; });
+    const pname = document.getElementById('profile-name'); if(pname) pname.textContent = currentUser.displayName||'Utilisateur';
+    const pemail = document.getElementById('profile-email'); if(pemail) pemail.textContent = currentUser.email;
+  }
+}
+
+async function loadMerchantData(uid) {
+  const s = await get(ref(db, `merchants/${uid}`));
+  currentMerchant = s.exists() ? { ...s.val(), uid } : null;
+}
+
+// ── PAGES ──
+window.showPage = function(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(`page-${name}`).classList.add('active');
+  window.scrollTo(0,0);
+  if (name==='home') loadProducts();
+  if (name==='merchant') { if(!currentUser){openModal('login');return;} loadMerchantDashboard(); }
+  if (name==='account') { if(!currentUser){openModal('login');return;} loadMyOrders(); loadMyReviews(); }
+};
+window.goHome = () => showPage('home');
+
+// ── LOAD PRODUCTS ──
+async function loadProducts(search='', cat=currentCategory) {
+  currentCategory = cat;
+  document.getElementById('product-grid').innerHTML = '<div class="spinner"></div>';
+  const snap = await get(ref(db, 'products'));
+  allProducts = [];
+  if (snap.exists()) snap.forEach(c => { const p={id:c.key,...c.val()}; if(p.stock>0) allProducts.push(p); });
+  const q = search.toLowerCase();
+  filteredProducts = allProducts.filter(p => {
+    const matchCat = cat==='all'||p.category===cat;
+    const matchSearch = !q||p.name.toLowerCase().includes(q)||(p.desc||'').toLowerCase().includes(q);
+    return matchCat && matchSearch;
+  });
+  applySortAndRender();
+}
+
+window.applySortAndRender = function() {
+  const sort = document.getElementById('sort-select').value;
+  const radiusKm = parseInt(document.getElementById('radius-select').value)||0;
+  let list = [...filteredProducts];
+
+  // RADIUS FILTER — seulement si position connue et rayon > 0
+  if (userLat && radiusKm > 0) {
+    list = list.filter(p => {
+      if (!p.storeLat || !p.storeLng) return true; // pas de coords = toujours visible
+      return haversine(userLat, userLng, p.storeLat, p.storeLng) <= radiusKm;
+    });
+  }
+
+  // COUNT
+  const countEl = document.getElementById('loc-count');
+  if (userLat && radiusKm > 0) {
+    countEl.textContent = `${list.length} produit${list.length!==1?'s':''} dans ce rayon`;
+  } else { countEl.textContent = ''; }
+
+  // SORT
+  if (sort==='boost') {
+    list.sort((a,b) => {
+      if (a.boosted && !b.boosted) return -1;
+      if (!a.boosted && b.boosted) return 1;
+      return (b.updatedAt||b.createdAt||0)-(a.updatedAt||a.createdAt||0);
+    });
+  } else if (sort==='price-asc') list.sort((a,b)=>a.price-b.price);
+  else if (sort==='price-desc') list.sort((a,b)=>b.price-a.price);
+  else if (sort==='rating') list.sort((a,b)=>(b.avgRating||0)-(a.avgRating||0));
+  else if (sort==='distance' && userLat) {
+    list.sort((a,b) => {
+      const dA=(a.storeLat&&a.storeLng)?haversine(userLat,userLng,a.storeLat,a.storeLng):9999;
+      const dB=(b.storeLat&&b.storeLng)?haversine(userLat,userLng,b.storeLat,b.storeLng):9999;
+      return dA-dB;
+    });
+  } else list.sort((a,b)=>(b.updatedAt||b.createdAt||0)-(a.updatedAt||a.createdAt||0));
+
+  renderProducts(list);
+};
+
+function renderProducts(products) {
+  const grid = document.getElementById('product-grid');
+  if (!products.length) { grid.innerHTML='<div class="empty-state"><div class="icon">🔍</div><p>Aucun produit dans ce rayon</p></div>'; return; }
+  grid.innerHTML = products.map(p => cardHTML(p)).join('');
+}
+
+function cardHTML(p) {
+  const sb = stockBadge(p.stock);
+  const promo = p.oldPrice ? `<span class="product-promo">-${Math.round((1-p.price/p.oldPrice)*100)}%</span>` : '';
+  const catBadge = p.category==='anti-gaspi'?'<span class="gaspi-badge">♻️</span>':p.category==='luxe'?'<span class="gaspi-badge" style="background:#0A0A0A">💎</span>':'';
+  const boostBadge = p.boosted ? '<span class="boosted-badge">⚡ Mis en avant</span>' : '';
+  const img = p.img ? `<img src="${p.img}" alt="${p.name}">` : `<span style="font-size:48px">${catEmoji(p.category)}</span>`;
+  const dist = distLabel(p);
+  const ratingHTML = p.reviewCount>0
+    ? `<div class="rating-row"><span class="stars-sm">${starsStr(p.avgRating)}</span><strong style="font-size:12px">${p.avgRating.toFixed(1)}</strong><span style="color:var(--gray-400);font-size:11px">(${p.reviewCount})</span></div>`
+    : `<div class="rating-row" style="color:var(--gray-400);font-size:11px">Pas encore d'avis</div>`;
+  const canDeliver = !NO_DELIVERY_CATS.includes(p.category);
+  const deliverIcon = canDeliver ? '<span title="Livraison disponible" style="font-size:11px;color:var(--gray-600)">🚚</span>' : '';
+  return `<div class="product-card${p.boosted?' boosted':''}" onclick="viewProduct('${p.id}')">
+    ${boostBadge}${catBadge}
+    <div class="product-img">${img}</div>
+    <div class="product-body">
+      <div class="product-store">${p.storeName||'Boutique'}</div>
+      <div class="product-name">${p.name}</div>
+      ${ratingHTML}
+      <div class="product-price-row">
+        <span class="product-price">${fmt(p.price)}</span>
+        ${p.oldPrice?`<span class="product-old-price">${fmt(p.oldPrice)}</span>`:''}
+        ${promo}
+      </div>
+      <div class="product-meta">${sb}<span class="product-distance">📍 ${dist} ${deliverIcon}</span></div>
+      <div class="product-update">Mis à jour ${timeAgo(p.updatedAt||p.createdAt)}</div>
+      <button class="btn btn-black card-btn" onclick="event.stopPropagation();viewProduct('${p.id}')">Voir & Acheter</button>
+    </div>
+  </div>`;
+}
+
+function distLabel(p) {
+  if (userLat && p.storeLat && p.storeLng) return fmtDist(haversine(userLat, userLng, p.storeLat, p.storeLng));
+  return p.distance||'—';
+}
+
+function stockBadge(s) {
+  if (s>10) return `<span class="stock-badge high"><span class="stock-dot high"></span>+10 disponibles</span>`;
+  if (s>3) return `<span class="stock-badge high"><span class="stock-dot high"></span>${s} disponibles</span>`;
+  if (s>1) return `<span class="stock-badge low"><span class="stock-dot low"></span>Plus que ${s}</span>`;
+  return `<span class="stock-badge critical"><span class="stock-dot critical"></span>Dernier exemplaire</span>`;
+}
+function starsStr(a) { const f=Math.round(a); return '★'.repeat(f)+'☆'.repeat(5-f); }
+function timeAgo(ts) {
+  if (!ts) return 'récemment';
+  const m=Math.floor((Date.now()-ts)/60000);
+  if(m<1) return "à l'instant";
+  if(m<60) return `il y a ${m} min`;
+  const h=Math.floor(m/60); if(h<24) return `il y a ${h}h`;
+  return `il y a ${Math.floor(h/24)}j`;
+}
+function catEmoji(c) { return {electronique:'📱',gaming:'🎮',mode:'👟',sport:'⚽',outils:'🔧','anti-gaspi':'🥗',luxe:'💎',autre:'📦'}[c]||'📦'; }
+function fmt(p) { return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR'}).format(p); }
+
+window.doSearch = function() {
+  const q = document.getElementById('search-input').value.trim();
+  document.getElementById('results-title').textContent = q?`Résultats pour "${q}"`:'🔥 Produits populaires';
+  loadProducts(q, currentCategory);
+};
+window.qs = function(t) { document.getElementById('search-input').value=t; doSearch(); };
+window.filterCat = function(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const labels={all:'🔥 Populaires',electronique:'📱 Électronique',gaming:'🎮 Gaming',mode:'👟 Mode',sport:'⚽ Sport',outils:'🔧 Outils','anti-gaspi':'♻️ Anti-Gaspi',luxe:'💎 Luxe'};
+  document.getElementById('results-title').textContent = labels[cat]||'Produits';
+  loadProducts(document.getElementById('search-input').value, cat);
+};
+
+// ── PRODUCT DETAIL ──
+window.viewProduct = async function(id) {
+  const p = allProducts.find(x=>x.id===id)||filteredProducts.find(x=>x.id===id);
+  if (!p) return;
+  currentProduct = p;
+  const promo = p.oldPrice?`<span class="detail-promo-badge">-${Math.round((1-p.price/p.oldPrice)*100)}%</span>`:'';
+  const img = p.img?`<img src="${p.img}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;border-radius:12px">`:`<span style="font-size:80px">${catEmoji(p.category)}</span>`;
+  const canDeliver = !NO_DELIVERY_CATS.includes(p.category);
+  const deliverTag = canDeliver
+    ? `<span style="background:#E8F5E9;color:#2E7D32;font-size:12px;font-weight:700;padding:3px 9px;border-radius:12px">🚚 Livraison disponible</span>`
+    : `<span style="background:#FFF3E0;color:#E65100;font-size:12px;font-weight:700;padding:3px 9px;border-radius:12px">🏪 Retrait uniquement</span>`;
+
+  // Distance + out-of-range warning
+  let distBlock = '', outOfRange = false;
+  if (userLat && p.storeLat && p.storeLng) {
+    const km = haversine(userLat, userLng, p.storeLat, p.storeLng);
+    const radius = parseInt(document.getElementById('radius-select').value)||0;
+    distBlock = `<span class="distance-chip">📍 ${fmtDist(km)} de vous</span>`;
+    if (radius > 0 && km > radius) {
+      outOfRange = true;
+      distBlock += `<div class="out-of-range">⚠️ Ce magasin est à ${fmtDist(km)}, au-delà de votre rayon de ${radius} km. Vous pouvez quand même commander.</div>`;
+    }
+  }
+
+  // Map
+  let mapHTML = '';
+  if (p.storeLat && p.storeLng) {
+    mapHTML = `<div class="map-embed"><iframe src="https://www.openstreetmap.org/export/embed.html?bbox=${p.storeLng-.006}%2C${p.storeLat-.004}%2C${p.storeLng+.006}%2C${p.storeLat+.004}&layer=mapnik&marker=${p.storeLat}%2C${p.storeLng}" loading="lazy"></iframe></div>
+    <a class="map-link" href="https://www.openstreetmap.org/?mlat=${p.storeLat}&mlon=${p.storeLng}&zoom=16" target="_blank">🗺️ Ouvrir dans OpenStreetMap</a>`;
+  }
+
+  const ratingLine = p.reviewCount>0
+    ? `<div style="display:flex;align-items:center;gap:8px"><span style="color:var(--gold);font-size:18px">${starsStr(p.avgRating)}</span><strong>${p.avgRating.toFixed(1)}/5</strong><span style="color:var(--gray-400);font-size:13px">${p.reviewCount} avis</span></div>`
+    : `<span style="font-size:13px;color:var(--gray-400)">Aucun avis pour l'instant</span>`;
+
+  document.getElementById('product-detail-content').innerHTML = `
+    <div class="detail-grid">
+      <div class="detail-img">${img}</div>
+      <div class="detail-info">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-400)">${p.storeName||'Boutique partenaire'}</div>
+        <div class="detail-title">${p.name}</div>
+        ${p.desc?`<p style="font-size:14px;color:var(--gray-600)">${p.desc}</p>`:''}
+        ${ratingLine}
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${deliverTag}${distBlock}</div>
+        <div class="detail-price-row">
+          <span class="detail-price">${fmt(p.price)}</span>
+          ${p.oldPrice?`<span class="detail-old">${fmt(p.oldPrice)}</span>`:''}
+          ${promo}
+        </div>
+        <div class="detail-stock-row">
+          ${stockBadge(p.stock)}
+          <span style="font-size:11px;color:var(--gray-400)">Mis à jour ${timeAgo(p.updatedAt||p.createdAt)}</span>
+        </div>
+        <div class="buy-box">
+          <div class="buy-box-title">Achat immédiat</div>
+          <button class="btn btn-black btn-full btn-lg" onclick="initBuy()">Acheter — ${fmt(p.price)}</button>
+        </div>
+        <div class="detail-address">
+          <strong>${p.storeName||'Magasin partenaire'}</strong>
+          ${p.storeAddress||'Adresse non renseignée'}<br>
+          🕐 ${p.storeHours||'Horaires non renseignés'}
+          ${mapHTML}
+        </div>
+      </div>
+    </div>`;
+
+  showPage('product');
+  await loadReviews(p.id, p.merchantId);
+};
+
+// ── BUY / DELIVERY ──
+window.initBuy = function() {
+  if (!currentUser) { openModal('login'); return; }
+  const p = currentProduct;
+  document.getElementById('payment-summary').textContent = `${p.name} — ${fmt(p.price)}`;
+  document.getElementById('payment-alert').innerHTML = '';
+  document.getElementById('total-product').textContent = fmt(p.price);
+  selectedDelivery = 'pickup';
+  deliveryCost = 0;
+  document.getElementById('total-delivery').textContent = 'Gratuit';
+  document.getElementById('total-final').textContent = fmt(p.price);
+
+  // Block delivery options if category doesn't allow
+  const noDeliv = NO_DELIVERY_CATS.includes(p.category);
+  ['dopt-relay','dopt-home'].forEach(id => {
+    const el = document.getElementById(id);
+    if (noDeliv) el.classList.add('disabled'); else el.classList.remove('disabled');
+  });
+  document.getElementById('no-delivery-notice').style.display = noDeliv ? 'block' : 'none';
+
+  // Reset selection to pickup
+  document.querySelectorAll('.delivery-opt').forEach(o => o.classList.remove('selected'));
+  document.querySelector('[data-mode="pickup"]').classList.add('selected');
+  document.getElementById('relay-address-block').style.display = 'none';
+  document.getElementById('home-address-block').style.display = 'none';
+
+  openModal('payment');
+};
+
+window.selectDelivery = function(mode, el) {
+  if (el.classList.contains('disabled')) return;
+  document.querySelectorAll('.delivery-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedDelivery = mode;
+  deliveryCost = mode==='relay' ? 3.99 : mode==='home' ? 6.99 : 0;
+  document.getElementById('relay-address-block').style.display = mode==='relay' ? 'block' : 'none';
+  document.getElementById('home-address-block').style.display = mode==='home' ? 'block' : 'none';
+  document.getElementById('total-delivery').textContent = deliveryCost > 0 ? fmt(deliveryCost) : 'Gratuit';
+  document.getElementById('total-final').textContent = fmt(currentProduct.price + deliveryCost);
+};
+
+window.toggleCardFields = function() {
+  document.getElementById('card-fields').style.display = document.getElementById('payment-method').value==='card' ? 'block' : 'none';
+};
+window.formatCard = function(i) { let v=i.value.replace(/\D/g,'').slice(0,16); i.value=v.match(/.{1,4}/g)?.join(' ')||v; };
+
+window.confirmPayment = async function() {
+  const btn = document.getElementById('pay-btn');
+  btn.innerHTML = '<span class="inline-loader"></span>'; btn.disabled = true;
+  try {
+    const p = currentProduct;
+    const snap = await get(ref(db, `products/${p.id}/stock`));
+    if (!snap.val()||snap.val()<1) { showAlert('payment','error','Ce produit n\'est plus en stock.'); btn.innerHTML='Payer et réserver';btn.disabled=false;return; }
+
+    // Delivery address
+    let deliveryAddress = '';
+    if (selectedDelivery==='relay') deliveryAddress = document.getElementById('relay-select').value;
+    else if (selectedDelivery==='home') {
+      const a = document.getElementById('home-address').value.trim();
+      if (!a) { showAlert('payment','error','Veuillez saisir une adresse de livraison.'); btn.innerHTML='Payer et réserver';btn.disabled=false;return; }
+      deliveryAddress = a + (document.getElementById('home-address2').value ? ', '+document.getElementById('home-address2').value : '');
+    }
+
+    const orderId = 'OMS-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,5).toUpperCase();
+    const secretCode = Math.floor(1000+Math.random()*9000).toString();
+    const total = p.price + deliveryCost;
+    const order = {
+      orderId, secretCode,
+      productId: p.id, productName: p.name, productPrice: p.price,
+      deliveryMode: selectedDelivery, deliveryCost, total,
+      deliveryAddress,
+      merchantId: p.merchantId, merchantName: p.storeName,
+      storeAddress: p.storeAddress||'', storeHours: p.storeHours||'',
+      userId: currentUser.uid, userEmail: currentUser.email,
+      userName: currentUser.displayName||currentUser.email,
+      paymentMethod: document.getElementById('payment-method').value,
+      status: 'pending', createdAt: Date.now()
+    };
+    await set(ref(db, `orders/${orderId}`), order);
+    await update(ref(db, `products/${p.id}`), { stock: snap.val()-1, updatedAt: Date.now() });
+    closeModal('payment');
+    showOrderConfirmation(order);
+  } catch(e) { console.error(e); showAlert('payment','error','Erreur de paiement. Réessayez.'); }
+  btn.innerHTML='Payer et réserver'; btn.disabled=false;
+};
+
+function showOrderConfirmation(o) {
+  const isPickup = o.deliveryMode==='pickup';
+  const infoBox = isPickup
+    ? `<div class="pickup-info-box">🏪 <strong>Retrait en magasin</strong> — Présentez QR code + pièce d'identité + code secret <strong>${o.secretCode}</strong></div>`
+    : o.deliveryMode==='relay'
+      ? `<div class="delivery-info-box">📦 <strong>Point relais</strong> — ${o.deliveryAddress}<br>Délai estimé : 2-3 jours ouvrés</div>`
+      : `<div class="delivery-info-box">🏠 <strong>Livraison à domicile</strong> — ${o.deliveryAddress}<br>Délai estimé : 1-2 jours ouvrés</div>`;
+  document.getElementById('order-details').innerHTML = `
+    ${infoBox}
+    <div class="order-card">
+      <div class="order-card-title">Identifiant commande</div>
+      <div class="order-id-big">${o.orderId}</div>
+      ${isPickup ? `<div class="qr-box">📦</div><div class="order-card-title" style="margin-top:12px">Code secret</div><div class="order-code-big">${o.secretCode}</div>` : ''}
+      <div class="order-row"><span>Produit</span><span>${o.productName}</span></div>
+      <div class="order-row"><span>Produit</span><span>${fmt(o.productPrice)}</span></div>
+      <div class="order-row"><span>Livraison</span><span>${o.deliveryCost>0?fmt(o.deliveryCost):'Gratuit'}</span></div>
+      <div class="order-row"><span><strong>Total</strong></span><span><strong>${fmt(o.total)}</strong></span></div>
+      <div class="order-row"><span>Magasin</span><span>${o.merchantName}</span></div>
+    </div>`;
+  showPage('order');
+}
+
+// ── MY ORDERS ──
+async function loadMyOrders() {
+  const el = document.getElementById('my-orders-list');
+  el.innerHTML = '<div class="spinner"></div>';
+  const snap = await get(ref(db,'orders'));
+  const orders = [];
+  if (snap.exists()) snap.forEach(c => { const o={id:c.key,...c.val()}; if(o.userId===currentUser.uid) orders.push(o); });
+  orders.sort((a,b)=>b.createdAt-a.createdAt);
+  if (!orders.length) { el.innerHTML='<div class="empty-state"><div class="icon">📦</div><p>Aucune commande</p></div>'; return; }
+  const modeLabel = {pickup:'🏪 Retrait magasin', relay:'📦 Point relais', home:'🏠 Domicile'};
+  el.innerHTML = orders.map(o => `
+    <div class="section-card">
+      <div class="section-card-header"><span>${o.orderId}</span>${statusBadge(o.status)}</div>
+      <div class="section-card-body">
+        <div style="font-weight:700;margin-bottom:4px">${o.productName}</div>
+        <div style="font-size:14px;color:var(--gray-600)">${o.merchantName||''} · ${fmt(o.total||o.productPrice)}</div>
+        <div style="font-size:13px;margin-top:4px">${modeLabel[o.deliveryMode]||'🏪 Retrait'}${o.deliveryAddress?` — ${o.deliveryAddress}`:''}</div>
+        ${o.deliveryMode==='pickup' ? `<div style="font-size:13px;color:var(--gray-400);margin-top:4px">Code secret : <strong style="color:var(--black);font-size:18px;letter-spacing:4px">${o.secretCode}</strong></div>` : ''}
+        <div style="font-size:11px;color:var(--gray-400);margin-top:4px">${timeAgo(o.createdAt)}</div>
+        ${o.status==='done'?`<button class="btn btn-outline" style="margin-top:10px;font-size:13px" onclick="openReviewFromOrder('${o.productId}')">Laisser un avis ⭐</button>`:''}
+      </div>
+    </div>`).join('');
+}
+
+window.openReviewFromOrder = async function(productId) {
+  const snap = await get(ref(db,`products/${productId}`));
+  if (snap.exists()) {
+    const p = {id:productId,...snap.val()};
+    if (!allProducts.find(x=>x.id===productId)) allProducts.push(p);
+    viewProduct(productId);
+  } else showToast('Produit introuvable');
+};
+
+function statusBadge(s) {
+  if(s==='pending') return `<span class="status-badge pending">⏳ En attente</span>`;
+  if(s==='ready') return `<span class="status-badge ready">🟢 Prêt</span>`;
+  if(s==='delivering') return `<span class="status-badge delivering">🚚 En livraison</span>`;
+  return `<span class="status-badge done">✅ Terminé</span>`;
+}
+
+// ── REVIEWS ──
+window.pickStar = function(n) {
+  selectedStars = n;
+  document.querySelectorAll('.star-pick').forEach((s,i) => s.classList.toggle('selected',i<n));
+};
+
+async function loadReviews(productId, merchantId) {
+  const section = document.getElementById('reviews-section');
+  section.style.display = 'block';
+  const snap = await get(ref(db,`reviews/${merchantId}`));
+  const reviews = [];
+  if (snap.exists()) snap.forEach(c => { const r={id:c.key,...c.val()}; if(r.productId===productId) reviews.push(r); });
+  reviews.sort((a,b)=>b.createdAt-a.createdAt);
+  const summaryEl = document.getElementById('reviews-summary-block');
+  if (reviews.length) {
+    const avg = reviews.reduce((s,r)=>s+r.rating,0)/reviews.length;
+    const counts = [5,4,3,2,1].map(n=>reviews.filter(r=>r.rating===n).length);
+    summaryEl.innerHTML = `<div class="reviews-summary">
+      <div><div class="reviews-big-score">${avg.toFixed(1)}</div><div style="color:var(--gold);font-size:20px;margin:4px 0">${starsStr(avg)}</div><div style="font-size:13px;color:var(--gray-400)">${reviews.length} avis</div></div>
+      <div class="reviews-breakdown" style="flex:1">${[5,4,3,2,1].map((n,i)=>`<div class="review-bar-row">
+        <span class="review-bar-label">${n}</span>
+        <div class="review-bar-track"><div class="review-bar-fill" style="width:${reviews.length?counts[i]/reviews.length*100:0}%"></div></div>
+        <span class="review-bar-count">${counts[i]}</span>
+      </div>`).join('')}</div>
+    </div>`;
+  } else summaryEl.innerHTML = '<div class="no-reviews">Soyez le premier à donner votre avis !</div>';
+
+  document.getElementById('reviews-list').innerHTML = reviews.map(r=>`
+    <div class="review-card">
+      <div class="review-card-header"><span class="review-author">${r.userName||'Client'}</span><span class="review-date">${timeAgo(r.createdAt)}</span></div>
+      <div class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+      ${r.text?`<div class="review-text">${r.text}</div>`:''}
+    </div>`).join('')||'';
+
+  if (currentUser) {
+    const already = reviews.find(r=>r.userId===currentUser.uid);
+    document.getElementById('add-review-form').style.display = already ? 'none' : 'block';
+    document.getElementById('review-login-prompt').style.display = 'none';
+  } else {
+    document.getElementById('add-review-form').style.display = 'none';
+    document.getElementById('review-login-prompt').style.display = 'block';
+  }
+  selectedStars = 0;
+  document.querySelectorAll('.star-pick').forEach(s=>s.classList.remove('selected'));
+}
+
+window.submitReview = async function() {
+  if (!selectedStars) { showToast('Choisissez une note ⭐'); return; }
+  const btn = document.getElementById('review-submit-btn');
+  btn.innerHTML='<span class="inline-loader"></span>'; btn.disabled=true;
+  try {
+    const review = {
+      productId:currentProduct.id, merchantId:currentProduct.merchantId,
+      userId:currentUser.uid, userName:currentUser.displayName||currentUser.email,
+      rating:selectedStars, text:document.getElementById('review-text').value.trim(),
+      createdAt:Date.now()
+    };
+    await push(ref(db,`reviews/${currentProduct.merchantId}`), review);
+    const snap = await get(ref(db,`reviews/${currentProduct.merchantId}`));
+    const all = [];
+    if(snap.exists()) snap.forEach(c=>{const r=c.val();if(r.productId===currentProduct.id)all.push(r.rating);});
+    const avg = all.reduce((s,v)=>s+v,0)/all.length;
+    await update(ref(db,`products/${currentProduct.id}`),{avgRating:Math.round(avg*10)/10,reviewCount:all.length});
+    showToast('Avis publié ! Merci 🙏');
+    await loadReviews(currentProduct.id, currentProduct.merchantId);
+  } catch { showToast('Erreur. Réessayez.'); }
+  btn.innerHTML='Publier l\'avis'; btn.disabled=false;
+};
+
+// ── MY REVIEWS ──
+async function loadMyReviews() {
+  const el = document.getElementById('my-reviews-list');
+  el.innerHTML='<div class="spinner"></div>';
+  const snap = await get(ref(db,'reviews'));
+  const mine = [];
+  if(snap.exists()) snap.forEach(m=>m.forEach(c=>{const r={id:c.key,...c.val()};if(r.userId===currentUser.uid)mine.push(r);}));
+  mine.sort((a,b)=>b.createdAt-a.createdAt);
+  if(!mine.length){el.innerHTML='<div class="empty-state"><div class="icon">⭐</div><p>Aucun avis laissé</p></div>';return;}
+  el.innerHTML=mine.map(r=>`<div class="section-card">
+    <div class="section-card-header"><span>${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span><span style="font-size:11px;color:var(--gray-400)">${timeAgo(r.createdAt)}</span></div>
+    <div class="section-card-body">${r.text?`<div style="font-size:14px;color:var(--gray-600)">${r.text}</div>`:'<div style="font-size:14px;color:var(--gray-400);font-style:italic">Avis sans commentaire</div>'}</div>
+  </div>`).join('');
+}
+
+// ── AUTH ──
+window.doLogin = async function() {
+  const btn=document.getElementById('login-btn');
+  btn.innerHTML='<span class="inline-loader"></span>';btn.disabled=true;
+  try { await signInWithEmailAndPassword(auth,document.getElementById('login-email').value,document.getElementById('login-password').value); closeModal('login');showToast('Connexion réussie 👋'); }
+  catch { showAlert('login','error','Email ou mot de passe incorrect.'); }
+  btn.innerHTML='Se connecter';btn.disabled=false;
+};
+window.doRegister = async function() {
+  const name=document.getElementById('register-name').value,email=document.getElementById('register-email').value,pwd=document.getElementById('register-password').value;
+  if(!name||!email||!pwd){showAlert('register','error','Remplissez tous les champs.');return;}
+  const btn=document.getElementById('register-btn');btn.innerHTML='<span class="inline-loader"></span>';btn.disabled=true;
+  try {
+    const c=await createUserWithEmailAndPassword(auth,email,pwd);
+    await updateProfile(c.user,{displayName:name});
+    await set(ref(db,`users/${c.user.uid}`),{name,email,createdAt:Date.now()});
+    closeModal('register');showToast('Compte créé ! 🎉');
+  } catch(e){showAlert('register','error',e.code==='auth/email-already-in-use'?'Email déjà utilisé.':'Erreur création.');}
+  btn.innerHTML='Créer mon compte';btn.disabled=false;
+};
+window.loginGoogle = async function() {
+  try {
+    const r=await signInWithPopup(auth,gProvider);
+    await set(ref(db,`users/${r.user.uid}`),{name:r.user.displayName,email:r.user.email,createdAt:Date.now()});
+    closeModal('login');closeModal('register');showToast('Connecté avec Google 👋');
+  } catch{showAlert('login','error','Erreur Google. Réessayez.');}
+};
+window.doLogout = async function() { await signOut(auth);currentMerchant=null;showPage('home');showToast('Déconnecté'); };
+
+// ── MERCHANT REGISTER ──
+window.doMerchantRegister = async function() {
+  if(!currentUser){openModal('login');return;}
+  const storeName=document.getElementById('m-store-name').value,address=document.getElementById('m-store-address').value;
+  if(!storeName||!address){showAlert('merchant','error','Nom et adresse obligatoires.');return;}
+  const lat=parseFloat(document.getElementById('m-store-lat').value),lng=parseFloat(document.getElementById('m-store-lng').value);
+  if(isNaN(lat)||isNaN(lng)){showAlert('merchant','error','Les coordonnées GPS sont obligatoires pour le calcul de distance.');return;}
+  const btn=document.getElementById('merchant-register-btn');btn.innerHTML='<span class="inline-loader"></span>';btn.disabled=true;
+  try {
+    const data={storeName,address,lat,lng,phone:document.getElementById('m-store-phone').value,hours:document.getElementById('m-store-hours').value,category:document.getElementById('m-store-category').value,ownerId:currentUser.uid,wallet:0,isPro:false,createdAt:Date.now()};
+    await set(ref(db,`merchants/${currentUser.uid}`),data);
+    currentMerchant={...data,uid:currentUser.uid};
+    closeModal('merchant-register');document.getElementById('nav-merchant-link').style.display='inline-flex';
+    showToast('Espace commerçant créé ! 🏪');
+  } catch{showAlert('merchant','error','Erreur. Réessayez.');}
+  btn.innerHTML='Créer mon espace commerçant';btn.disabled=false;
+};
+
+// ── DASHBOARD ──
+async function loadMerchantDashboard() {
+  if(!currentMerchant&&currentUser) await loadMerchantData(currentUser.uid);
+  if(!currentMerchant){openModal('merchant-register');return;}
+  const snapM=await get(ref(db,`merchants/${currentUser.uid}`));
+  const m=snapM.val()||{};
+  document.getElementById('wallet-amount').textContent=fmt(m.wallet||0);
+  const isPro = m.isPro||false;
+  document.getElementById('stat-sub').textContent = isPro ? '⚡ Pro' : 'Gratuit';
+  document.getElementById('stat-sub').style.color = isPro ? 'var(--gold)' : '';
+
+  const snapP=await get(ref(db,'products'));
+  const tbody=document.getElementById('products-tbody');tbody.innerHTML='';
+  let activeCount=0;
+  if(snapP.exists()){
+    snapP.forEach(c=>{
+      const p={id:c.key,...c.val()};
+      if(p.merchantId!==currentUser.uid) return;
+      if(p.stock>0) activeCount++;
+      tbody.innerHTML+=`<tr>
+        <td><strong>${p.name}</strong>${p.boosted?'&nbsp;<span style="color:var(--gold);font-size:12px">⚡</span>':''}</td>
+        <td>${p.category}</td><td>${fmt(p.price)}</td>
+        <td><div style="display:flex;align-items:center;gap:6px">
+          <button class="btn btn-outline" style="padding:3px 8px;font-size:12px" onclick="updateStock('${p.id}',${p.stock},-1)">−</button>
+          <strong>${p.stock}</strong>
+          <button class="btn btn-outline" style="padding:3px 8px;font-size:12px" onclick="updateStock('${p.id}',${p.stock},1)">+</button>
+        </div></td>
+        <td style="font-size:12px;color:var(--gray-400)">${timeAgo(p.updatedAt||p.createdAt)}</td>
+        <td style="display:flex;gap:6px">
+          ${isPro?`<button class="btn btn-outline" style="font-size:11px;padding:4px 8px;color:var(--gold);border-color:var(--gold)" onclick="toggleBoost('${p.id}',${!!p.boosted})">${p.boosted?'Retirer':'⚡ Booster'}</button>`:''}
+          <button class="btn btn-outline" style="font-size:11px;padding:4px 8px;color:var(--red)" onclick="deleteProduct('${p.id}')">Supprimer</button>
+        </td>
+      </tr>`;
+    });
+    if(!tbody.innerHTML) tbody.innerHTML='<tr><td colspan="6" class="no-items">Ajoutez votre premier produit</td></tr>';
+  }
+  document.getElementById('stat-products').textContent=activeCount;
+
+  const snapO=await get(ref(db,'orders'));
+  const otbody=document.getElementById('orders-tbody');otbody.innerHTML='';
+  let orderCount=0,ca=0;
+  if(snapO.exists()){
+    snapO.forEach(c=>{
+      const o={id:c.key,...c.val()};
+      if(o.merchantId!==currentUser.uid) return;
+      orderCount++;
+      if(o.status==='done') ca+=o.productPrice*(1-.12);
+      const modeLabel={pickup:'🏪 Retrait',relay:'📦 Relais',home:'🏠 Domicile'};
+      const actionBtn = o.status==='pending'
+        ? (o.deliveryMode==='pickup'
+            ? `<button class="btn btn-green" style="font-size:12px;padding:4px 10px" onclick="openValidateModal('${o.id}','${o.secretCode}')">Valider retrait</button>`
+            : `<button class="btn" style="font-size:12px;padding:4px 10px;background:#1565C0;color:#fff" onclick="markDelivering('${o.id}')">Envoyer 🚚</button>`)
+        : o.status==='delivering' ? `<span style="font-size:12px;color:#1565C0">En livraison</span>` : '—';
+      otbody.innerHTML+=`<tr>
+        <td><strong>${o.orderId}</strong><br><span style="font-size:11px;color:var(--gray-400)">${timeAgo(o.createdAt)}</span></td>
+        <td>${o.productName}</td>
+        <td>${modeLabel[o.deliveryMode]||'🏪'}</td>
+        <td>${fmt(o.productPrice)}</td>
+        <td>${statusBadge(o.status)}</td>
+        <td>${actionBtn}</td>
+      </tr>`;
+    });
+    if(!orderCount) otbody.innerHTML='<tr><td colspan="6" class="no-items">Aucune commande</td></tr>';
+  }
+  document.getElementById('stat-orders').textContent=orderCount;
+  document.getElementById('stat-ca').textContent=fmt(ca);
+
+  const snapR=await get(ref(db,`reviews/${currentUser.uid}`));
+  const rEl=document.getElementById('merchant-reviews-list');
+  let allRatings=[],rHTML='';
+  if(snapR.exists()){
+    snapR.forEach(c=>{const r={id:c.key,...c.val()};allRatings.push(r.rating);rHTML+=`<div class="review-card"><div class="review-card-header"><span class="review-author">${r.userName||'Client'}</span><span class="review-date">${timeAgo(r.createdAt)}</span></div><div class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>${r.text?`<div class="review-text">${r.text}</div>`:''}</div>`;});
+  }
+  rEl.innerHTML=rHTML||'<div class="no-items">Aucun avis reçu</div>';
+  if(allRatings.length){const avg=allRatings.reduce((s,v)=>s+v,0)/allRatings.length;document.getElementById('stat-rating').textContent=avg.toFixed(1)+'★';document.getElementById('stat-rating-sub').textContent=`${allRatings.length} avis`;}
+}
+
+window.markDelivering = async function(orderId) {
+  await update(ref(db,`orders/${orderId}`),{status:'delivering'});
+  showToast('🚚 Commande marquée en livraison');
+  loadMerchantDashboard();
+};
+
+window.updateStock = async function(productId,current,delta) {
+  const n=Math.max(0,current+delta);
+  await update(ref(db,`products/${productId}`),{stock:n,updatedAt:Date.now()});
+  showToast(`Stock : ${n}`); loadMerchantDashboard();
+};
+
+window.deleteProduct = async function(productId) {
+  if(!confirm('Supprimer ce produit ?')) return;
+  await remove(ref(db,`products/${productId}`));
+  showToast('Produit supprimé'); loadMerchantDashboard();
+};
+
+window.toggleBoost = async function(productId, currently) {
+  await update(ref(db,`products/${productId}`),{boosted:!currently});
+  showToast(!currently ? '⚡ Produit mis en avant !' : 'Mise en avant retirée');
+  loadMerchantDashboard();
+};
+
+// ── ADD PRODUCT ──
+window.openAddProductModal = function() {
+  imgBase64=null;
+  document.getElementById('img-b64-preview').style.display='none';
+  document.getElementById('img-upload-label').style.display='';
+  openModal('add-product');
+};
+window.handleImgUpload = function(event) {
+  const file=event.target.files[0];if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{imgBase64=e.target.result;const p=document.getElementById('img-b64-preview');p.src=imgBase64;p.style.display='block';document.getElementById('img-upload-label').style.display='none';};
+  reader.readAsDataURL(file);
+};
+window.doAddProduct = async function() {
+  if(!currentMerchant){showAlert('add-product','error','Créez un espace commerçant d\'abord.');return;}
+  const name=document.getElementById('p-name').value,price=parseFloat(document.getElementById('p-price').value),qty=parseInt(document.getElementById('p-qty').value),category=document.getElementById('p-category').value;
+  if(!name||isNaN(price)||isNaN(qty)){showAlert('add-product','error','Remplissez les champs obligatoires.');return;}
+  const btn=document.getElementById('add-product-btn');btn.innerHTML='<span class="inline-loader"></span>';btn.disabled=true;
+  try {
+    const old=parseFloat(document.getElementById('p-old-price').value);
+    const isPro = (await get(ref(db,`merchants/${currentUser.uid}/isPro`))).val()||false;
+    const product={name,price,category,stock:qty,desc:document.getElementById('p-desc').value,merchantId:currentUser.uid,storeName:currentMerchant.storeName,storeAddress:currentMerchant.address,storeHours:currentMerchant.hours||'',createdAt:Date.now(),updatedAt:Date.now(),avgRating:0,reviewCount:0,boosted:false};
+    if(currentMerchant.lat&&currentMerchant.lng){product.storeLat=currentMerchant.lat;product.storeLng=currentMerchant.lng;}
+    if(!isNaN(old)&&old>0) product.oldPrice=old;
+    if(imgBase64) product.img=imgBase64;
+    await push(ref(db,'products'),product);
+    closeModal('add-product');showToast('Produit publié ! 🎉');loadMerchantDashboard();
+  } catch{showAlert('add-product','error','Erreur.');}
+  btn.innerHTML='Publier le produit';btn.disabled=false;
+};
+
+// ── VALIDATE ORDER ──
+window.openValidateModal = function(orderId,expectedCode) {
+  validateOrderId=orderId;window._expectedCode=expectedCode;
+  document.getElementById('validate-code-input').value='';document.getElementById('validate-alert').innerHTML='';
+  openModal('validate-order');
+};
+window.doValidateOrder = async function() {
+  const input=document.getElementById('validate-code-input').value.trim();
+  if(input!==window._expectedCode){showAlert('validate','error','Code incorrect. Refusez la commande.');return;}
+  try {
+    const snap=await get(ref(db,`orders/${validateOrderId}`));const order=snap.val();
+    await update(ref(db,`orders/${validateOrderId}`),{status:'done'});
+    const net=order.productPrice*.88;
+    const mSnap=await get(ref(db,`merchants/${currentUser.uid}`));
+    await update(ref(db,`merchants/${currentUser.uid}`),{wallet:(mSnap.val()?.wallet||0)+net});
+    closeModal('validate-order');showToast(`✅ Validé ! +${fmt(net)} dans votre portefeuille`);loadMerchantDashboard();
+  } catch{showAlert('validate','error','Erreur.');}
+};
+window.requestWithdraw = () => showToast('Virement bancaire — bientôt disponible');
+
+// ── SUBSCRIPTION ──
+window.subscribePro = async function() {
+  if(!currentUser){openModal('login');return;}
+  const btn=document.getElementById('sub-pro-btn');btn.innerHTML='<span class="inline-loader"></span>';btn.disabled=true;
+  // Simulation paiement abonnement (à brancher sur Stripe plus tard)
+  await new Promise(r=>setTimeout(r,1500));
+  try {
+    await update(ref(db,`merchants/${currentUser.uid}`),{isPro:true,proSince:Date.now()});
+    if(currentMerchant) currentMerchant.isPro=true;
+    document.getElementById('pro-sub-card').classList.add('active-plan');
+    btn.textContent='✓ Abonnement actif';btn.disabled=true;
+    showToast('⚡ Abonnement Pro activé ! Vos produits sont maintenant mis en avant.');
+    document.getElementById('stat-sub').textContent='⚡ Pro';document.getElementById('stat-sub').style.color='var(--gold)';
+  } catch{showToast('Erreur. Réessayez.');}
+  btn.innerHTML='S\'abonner Pro';btn.disabled=false;
+};
+
+// ── TABS ──
+window.switchTab = function(tabId,btn) {
+  const p=btn.closest('.tabs').parentElement;
+  p.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  p.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');p.querySelector('#'+tabId).classList.add('active');
+};
+
+// ── MODALS ──
+window.openModal = n=>document.getElementById(`modal-${n}`).classList.add('open');
+window.closeModal = n=>document.getElementById(`modal-${n}`).classList.remove('open');
+window.switchModal = (a,b)=>{closeModal(a);openModal(b);};
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+
+function showAlert(ctx,type,msg){
+  const map={login:'login-alert',register:'register-alert',merchant:'merchant-alert','add-product':'add-product-alert',payment:'payment-alert',validate:'validate-alert'};
+  const el=document.getElementById(map[ctx]);
+  if(el) el.innerHTML=`<div class="alert alert-${type==='error'?'error':'success'}">${msg}</div>`;
+}
+window.showToast = function(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3200);
+};
+
+loadProducts();
+</script>
+</body>
+</html>
