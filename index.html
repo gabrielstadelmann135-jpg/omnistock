@@ -1909,49 +1909,107 @@ const firebaseConfig = {
   appId: "1:978114532560:web:603cedbd8f43031e48fad5",
   databaseURL: "https://omnistock-969cf-default-rtdb.europe-west1.firebasedatabase.app"
 };
+
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-function directionsUrl2(lat, lng, address) {
-  if (lat && lng) return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
-  if (address) return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
+function directionsUrl(lat, lng, address) {
+  if (lat != null && lng != null) {
+    return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+  }
+  if (address) {
+    return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
+  }
   return null;
 }
 
+let running = false;
+
 async function addItineraryToOrders() {
-  const list = document.getElementById('my-orders-list');
-  if (!list) return;
-  const cards = list.querySelectorAll('.section-card');
-  for (const card of cards) {
-    if (card.querySelector('.itin-order-btn')) continue;
-    const headerSpan = card.querySelector('.section-card-header span');
-    if (!headerSpan) continue;
-    const orderId = headerSpan.textContent.trim();
-    if (!orderId.startsWith('OMS-')) continue;
-    try {
-      const snap = await get(ref(db, `orders/${orderId}`));
-      if (!snap.exists()) continue;
-      const o = snap.val();
-      const url = directionsUrl2(o.storeLat, o.storeLng, o.storeAddress);
-      if (!url) continue;
-      const body = card.querySelector('.section-card-body');
-      if (!body) continue;
-      const btn = document.createElement('a');
-      btn.className = 'itin-order-btn btn btn-outline btn-full';
-      btn.style.marginTop = '8px';
-      btn.style.fontSize = '13px';
-      btn.href = url;
-      btn.target = '_blank';
-      btn.rel = 'noopener';
-      btn.textContent = '🧭 Itinéraire vers la boutique';
-      body.appendChild(btn);
-    } catch (e) { console.error(e); }
+  if (running) return;
+  running = true;
+
+  try {
+    const list = document.getElementById("my-orders-list");
+    if (!list) return;
+
+    const cards = list.querySelectorAll(".section-card");
+
+    for (const card of cards) {
+
+      // Déjà traité
+      if (card.dataset.itineraryProcessed === "1") continue;
+
+      // Déjà un bouton
+      if (card.querySelector(".itin-order-btn")) {
+        card.dataset.itineraryProcessed = "1";
+        continue;
+      }
+
+      // On marque immédiatement pour éviter les doublons
+      card.dataset.itineraryProcessed = "1";
+
+      const header = card.querySelector(".section-card-header span");
+      if (!header) continue;
+
+      const orderId = header.textContent.trim();
+      if (!orderId.startsWith("OMS-")) continue;
+
+      try {
+        const snap = await get(ref(db, `orders/${orderId}`));
+        if (!snap.exists()) continue;
+
+        const order = snap.val();
+
+        const url = directionsUrl(
+          order.storeLat,
+          order.storeLng,
+          order.storeAddress
+        );
+
+        if (!url) continue;
+
+        const body = card.querySelector(".section-card-body");
+        if (!body) continue;
+
+        const btn = document.createElement("a");
+        btn.className = "itin-order-btn btn btn-outline btn-full";
+        btn.href = url;
+        btn.target = "_blank";
+        btn.rel = "noopener";
+        btn.style.marginTop = "8px";
+        btn.style.fontSize = "13px";
+        btn.textContent = "🧭 Itinéraire vers la boutique";
+
+        body.appendChild(btn);
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+  } finally {
+    running = false;
   }
 }
 
-const accountPage = document.getElementById('page-account');
+// Premier passage
+addItineraryToOrders();
+
+// Observer
+const accountPage = document.getElementById("page-account");
+
 if (accountPage) {
-  new MutationObserver(addItineraryToOrders).observe(accountPage, { childList: true, subtree: true });
+  const observer = new MutationObserver((mutations) => {
+    if (mutations.some(m => m.addedNodes.length > 0)) {
+      addItineraryToOrders();
+    }
+  });
+
+  observer.observe(accountPage, {
+    childList: true,
+    subtree: true
+  });
 }
 </script>
 
