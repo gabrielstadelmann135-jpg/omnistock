@@ -259,6 +259,30 @@
     .nav-actions .btn:last-child { display: inline-flex; }
   }
   @media(max-width: 400px) { .product-grid { grid-template-columns: 1fr; } }
+
+
+/* Logo */
+.nav-logo {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.logo {
+    height: 50px;      /* Taille du logo */
+    width: auto;       /* Garde les proportions */
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+/* Petit effet au survol */
+.nav-logo:hover .logo {
+    transform: scale(1.05);
+}
+
+
+
+ 
 </style>
 </head>
 <body>
