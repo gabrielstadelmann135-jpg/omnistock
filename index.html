@@ -2369,7 +2369,105 @@ window.closeLegalIfBg=function(e){
 
 
 
+<script>
+(function(){
+  function injectLocationField(){
+    const form = document.getElementById('modal-add-product');
+    if(!form || document.getElementById('p-location-inject')) return;
 
+    // Trouve le bouton submit
+    const submitBtn = document.getElementById('add-product-btn');
+    if(!submitBtn) return;
+
+    // Crée le bloc localisation
+    const div = document.createElement('div');
+    div.id = 'p-location-inject';
+    div.innerHTML = `
+      <div style="border-top:1.5px solid var(--gray-200);margin:14px 0;padding-top:14px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:10px">📍 Localisation du produit</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px">
+          <div class="form-group" style="margin:0">
+            <label>Latitude</label>
+            <input type="number" id="p-loc-lat" placeholder="48.8566" step="any">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>Longitude</label>
+            <input type="number" id="p-loc-lng" placeholder="2.3522" step="any">
+          </div>
+        </div>
+        <button type="button" id="p-loc-btn" style="
+          width:100%;padding:10px;border:1.5px solid var(--gray-200);
+          border-radius:var(--radius-sm);background:var(--gray-50);
+          font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;
+          display:flex;align-items:center;justify-content:center;gap:8px;
+          transition:all .15s
+        ">
+          📍 Utiliser ma position actuelle
+        </button>
+        <p style="font-size:11px;color:var(--gray-400);margin-top:6px">
+          Optionnel — permet aux clients de voir la distance exacte jusqu'au produit.
+          Ou trouvez vos coordonnées sur <a href="https://www.openstreetmap.org" target="_blank" style="color:var(--black);font-weight:600">openstreetmap.org</a>
+        </p>
+      </div>
+    `;
+    submitBtn.parentNode.insertBefore(div, submitBtn);
+
+    // Bouton géolocalisation
+    document.getElementById('p-loc-btn').addEventListener('click', function(){
+      const btn = this;
+      btn.textContent = '⏳ Localisation en cours…';
+      btn.disabled = true;
+      if(!navigator.geolocation){
+        btn.textContent = '❌ Non supporté';
+        btn.disabled = false;
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          document.getElementById('p-loc-lat').value = pos.coords.latitude.toFixed(6);
+          document.getElementById('p-loc-lng').value = pos.coords.longitude.toFixed(6);
+          btn.textContent = '✓ Position détectée';
+          btn.style.borderColor = 'var(--green)';
+          btn.style.color = 'var(--green)';
+          btn.disabled = false;
+        },
+        () => {
+          btn.textContent = '❌ Position refusée';
+          btn.disabled = false;
+        }
+      );
+    });
+  }
+
+  // Patch doAddProduct pour inclure les coords
+  const _origDoAddProduct = window.doAddProduct;
+  if(_origDoAddProduct){
+    window.doAddProduct = async function(){
+      // Injecte les coords dans les champs du merchant si renseignées
+      const lat = parseFloat(document.getElementById('p-loc-lat')?.value);
+      const lng = parseFloat(document.getElementById('p-loc-lng')?.value);
+      if(!isNaN(lat) && !isNaN(lng)){
+        window._pendingProductLat = lat;
+        window._pendingProductLng = lng;
+      } else {
+        window._pendingProductLat = null;
+        window._pendingProductLng = null;
+      }
+      await _origDoAddProduct();
+    };
+  }
+
+  // Observer pour injecter le champ dès que la modale s'ouvre
+  const modal = document.getElementById('modal-add-product');
+  if(modal){
+    new MutationObserver(function(){
+      if(modal.classList.contains('open')) injectLocationField();
+    }).observe(modal, {attributes:true, attributeFilter:['class']});
+  }
+
+  injectLocationField();
+})();
+</script>
 
  
 
