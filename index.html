@@ -2248,30 +2248,15 @@ if (accountPage) {
 
 <!-- FOOTER + MODALS LÉGAUX -->
 <style>
-.footer-legal{
-  position:fixed;bottom:0;left:0;right:0;z-index:10;
-  background:var(--gray-50);border-top:1px solid var(--gray-200);
-  padding:10px 24px;
-}
-.footer-legal-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px}
-.footer-legal-links{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px}
-.footer-legal-links a{color:var(--gray-400);text-decoration:none;font-weight:500;cursor:pointer;white-space:nowrap}
-.footer-legal-links a:hover{color:var(--black)}
-.footer-legal-copy{font-size:11px;color:var(--gray-400);white-space:nowrap}
+.footer-legal{background:var(--gray-50);border-top:1px solid var(--gray-200);padding:32px 24px 100px;margin-top:40px}
+.footer-legal-inner{max-width:1100px;margin:0 auto}
+.footer-legal-logo{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.footer-legal-links{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;margin-bottom:18px}
+.footer-legal-links a{color:var(--gray-600);text-decoration:none;font-weight:500;cursor:pointer}
+.footer-legal-links a:hover{color:var(--black);text-decoration:underline}
+.footer-legal-bottom{border-top:1px solid var(--gray-200);padding-top:14px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px}
 
-/* Les pages passent DEVANT le footer */
-.page{position:relative;z-index:20}
-nav{z-index:100}
-.cart-fab{z-index:150}
-.cart-drawer,.cart-drawer-overlay{z-index:201}
-.modal-overlay{z-index:300}
-.legal-modal-overlay{z-index:500}
-.mobile-bottom-nav{z-index:140}
-
-/* padding bas pour que le contenu ne soit pas caché derrière le footer fixe */
-body{padding-bottom:48px}
-
-.legal-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;padding:0;backdrop-filter:blur(4px)}
+.legal-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:flex-end;justify-content:center;padding:0;backdrop-filter:blur(4px)}
 .legal-modal-overlay.open{display:flex}
 .legal-modal{background:var(--white);border-radius:18px 18px 0 0;width:100%;max-width:640px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(0,0,0,.12)}
 .legal-modal-head{padding:18px 24px 14px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
@@ -2289,24 +2274,26 @@ body{padding-bottom:48px}
   .legal-modal{border-radius:16px;max-height:80vh}
   .legal-drag{display:none}
 }
-@media(max-width:768px){
-  .footer-legal{padding:8px 12px;padding-bottom:calc(8px + env(safe-area-inset-bottom))}
-  .footer-legal-links{gap:3px 10px;font-size:11px}
-  /* sur mobile la bottom-nav est déjà là, footer au-dessus */
-  body{padding-bottom:110px}
-}
 </style>
 
 <footer class="footer-legal">
   <div class="footer-legal-inner">
+    <div class="footer-legal-logo">
+      <span style="font-size:17px;font-weight:900;letter-spacing:-.5px">OmniStock</span>
+      <span style="width:7px;height:7px;background:#00C853;border-radius:50%;display:inline-block"></span>
+    </div>
+    <p style="font-size:13px;color:var(--gray-600);max-width:540px;margin-bottom:18px;line-height:1.6">OmniStock connecte les consommateurs aux stocks réels des commerçants. Chaque disponibilité est fournie par le commerçant partenaire. OmniStock ne stocke aucun produit.</p>
     <div class="footer-legal-links">
-      <a onclick="openLegal('cgu')">CGU</a>
-      <a onclick="openLegal('confidentialite')">Confidentialité</a>
+      <a onclick="openLegal('cgu')">Conditions générales d'utilisation</a>
+      <a onclick="openLegal('confidentialite')">Politique de confidentialité</a>
       <a onclick="openLegal('mentions')">Mentions légales</a>
       <a onclick="openLegal('cookies')">Cookies</a>
-      <a onclick="openLegal('contact')">Contact</a>
+      <a onclick="openLegal('contact')">Nous contacter</a>
     </div>
-    <span class="footer-legal-copy">© 2025 OmniStock · Commission 12 % · 🔒 Paiement sécurisé</span>
+    <div class="footer-legal-bottom">
+      <span style="font-size:12px;color:var(--gray-400)">© 2025 OmniStock. Tous droits réservés.</span>
+      <span style="font-size:12px;color:var(--gray-400)">Commission 12 % · Paiement sécurisé 🔒</span>
+    </div>
   </div>
 </footer>
 
@@ -2368,7 +2355,7 @@ const legalContent = {
       <h3>4. Hébergement</h3>
       <p>Les données sont hébergées via Firebase (Google Cloud), dans des data centers situés en Europe de l'Ouest, conformément au RGPD.</p>
       <h3>5. Vos droits</h3>
-      <p>Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, de suppression et de portabilité de vos données. Pour exercer ces droits, contactez-nous à : <strong>gabrielstadelmann1@gmail.com</strong></p>
+      <p>Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, de suppression et de portabilité de vos données. Pour exercer ces droits, contactez-nous à : <strong>privacy@omnistock.fr</strong></p>
       <h3>6. Durée de conservation</h3>
       <p>Les données de compte sont conservées pendant toute la durée d'utilisation du service, puis supprimées dans un délai de 3 ans après la dernière activité.</p>
     `
@@ -2379,7 +2366,8 @@ const legalContent = {
       <h3>Éditeur du site</h3>
       <p><strong>OmniStock SAS</strong><br>
       Capital social : 1000 €<br>
-      Siège social : 3 bis rue des pâquerettes, Neuville-de-Poitou 86170<br>
+      Siège social : 3 bis rue des paquerettes, neuville de poitou 86170<br>
+     
       SIRET : 123 456 789 00012<br>
       TVA intracommunautaire : FR12 123456789</p>
       <h3>Directeur de la publication</h3>
@@ -2428,7 +2416,7 @@ const legalContent = {
       <p>Pour exercer vos droits RGPD (accès, rectification, suppression) :<br>
       📧 <strong>gabrielstadelmann1@gmail.com</strong></p>
       <h3>Adresse postale</h3>
-      <p>OmniStock SAS<br>3 bis rue des pâquerettes, Neuville-de-Poitou 86170, France</p>
+      <p>OmniStock SAS<br>3 bis rue des paquerettes neuville de poitou, France</p>
     `
   }
 };
@@ -2450,6 +2438,85 @@ window.closeLegal = function() {
 window.closeLegalIfBg = function(e) {
   if (e.target === document.getElementById('legal-modal-overlay')) closeLegal();
 };
+</script>
+
+
+
+
+
+
+
+
+  <script>
+(function(){
+  let currentPage = 1;
+  const PAGE_SIZE = 12;
+  let sortedProductsList = [];
+
+  const _origApply = window.applySortAndRender;
+
+  window.applySortAndRender = function() {
+    currentPage = 1;
+    const sort = document.getElementById('sort-select').value;
+    const radiusKm = parseInt(document.getElementById('radius-select').value)||0;
+    let list = [...(window.filteredProducts||[])];
+    if (window.userLat && radiusKm > 0) {
+      list = list.filter(p => (!p.storeLat||!p.storeLng)||haversine(window.userLat,window.userLng,p.storeLat,p.storeLng)<=radiusKm);
+    }
+    const countEl = document.getElementById('loc-count');
+    if(countEl) countEl.textContent = (window.userLat && radiusKm > 0) ? `${list.length} produit${list.length!==1?'s':''} dans ce rayon` : '';
+
+    if (sort==='boost') {
+      const boosted = list.filter(p=>p.boosted);
+      const others = list.filter(p=>!p.boosted).sort(()=>Math.random()-.5);
+      list = [...boosted, ...others];
+    } else if (sort==='price-asc') list.sort((a,b)=>a.price-b.price);
+    else if (sort==='price-desc') list.sort((a,b)=>b.price-a.price);
+    else if (sort==='rating') list.sort((a,b)=>(b.avgRating||0)-(a.avgRating||0));
+    else if (sort==='distance'&&window.userLat) list.sort((a,b)=>{
+      const dA=(a.storeLat&&a.storeLng)?haversine(window.userLat,window.userLng,a.storeLat,a.storeLng):9999;
+      const dB=(b.storeLat&&b.storeLng)?haversine(window.userLat,window.userLng,b.storeLat,b.storeLng):9999;
+      return dA-dB;
+    });
+    else list.sort((a,b)=>(b.updatedAt||b.createdAt||0)-(a.updatedAt||a.createdAt||0));
+
+    sortedProductsList = list;
+    renderPage();
+  };
+
+  function renderPage() {
+    const grid = document.getElementById('product-grid');
+    if (!grid) return;
+    const list = sortedProductsList;
+    if (!list.length) {
+      grid.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>Aucun produit trouvé</p></div>';
+      removeSeeMoreBtn(); return;
+    }
+    const slice = list.slice(0, currentPage * PAGE_SIZE);
+    grid.innerHTML = slice.map(p => window.cardHTML ? window.cardHTML(p) : '').join('');
+    updateSeeMoreBtn(slice.length < list.length, list.length, slice.length);
+  }
+
+  function updateSeeMoreBtn(show, total, shown) {
+    let btn = document.getElementById('see-more-btn');
+    if (!show) { if(btn) btn.remove(); return; }
+    if (!btn) {
+      btn = document.createElement('div');
+      btn.id = 'see-more-btn';
+      btn.style.cssText = 'text-align:center;margin:28px 0 60px';
+      const section = document.querySelector('.section');
+      if(section) section.appendChild(btn);
+    }
+    btn.innerHTML = `<button onclick="window._loadMore()" class="btn btn-outline" style="padding:12px 32px;font-size:14px;font-weight:700">Voir plus de produits <span style="color:var(--gray-400);font-weight:400;font-size:13px">(${shown}/${total})</span></button>`;
+  }
+
+  function removeSeeMoreBtn() { const b=document.getElementById('see-more-btn'); if(b) b.remove(); }
+
+  window._loadMore = function() {
+    currentPage++;
+    renderPage();
+  };
+})();
 </script>
 
 
