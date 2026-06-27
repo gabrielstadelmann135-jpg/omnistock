@@ -2243,5 +2243,208 @@ if (accountPage) {
   <div class="mbn-item" onclick="openCart()"><span class="mbn-icon">🛒</span>Panier</div>
   <div class="mbn-item" onclick="showPage('account')"><span class="mbn-icon">👤</span>Compte</div>
 </div>
+
+
+
+<!-- FOOTER + MODALS LÉGAUX -->
+<style>
+.footer-legal{background:var(--gray-50);border-top:1px solid var(--gray-200);padding:32px 24px 100px;margin-top:40px}
+.footer-legal-inner{max-width:1100px;margin:0 auto}
+.footer-legal-logo{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.footer-legal-links{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;margin-bottom:18px}
+.footer-legal-links a{color:var(--gray-600);text-decoration:none;font-weight:500;cursor:pointer}
+.footer-legal-links a:hover{color:var(--black);text-decoration:underline}
+.footer-legal-bottom{border-top:1px solid var(--gray-200);padding-top:14px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px}
+
+.legal-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:flex-end;justify-content:center;padding:0;backdrop-filter:blur(4px)}
+.legal-modal-overlay.open{display:flex}
+.legal-modal{background:var(--white);border-radius:18px 18px 0 0;width:100%;max-width:640px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(0,0,0,.12)}
+.legal-modal-head{padding:18px 24px 14px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.legal-modal-title{font-size:17px;font-weight:800;letter-spacing:-.3px}
+.legal-modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--gray-400);padding:4px;line-height:1}
+.legal-modal-body{flex:1;overflow-y:auto;padding:20px 24px 32px;font-size:14px;color:var(--gray-600);line-height:1.7}
+.legal-modal-body h3{font-size:15px;font-weight:800;color:var(--black);margin:20px 0 6px}
+.legal-modal-body h3:first-child{margin-top:0}
+.legal-modal-body p{margin-bottom:10px}
+.legal-modal-body ul{padding-left:18px;margin-bottom:10px}
+.legal-modal-body ul li{margin-bottom:4px}
+.legal-drag{width:36px;height:4px;background:var(--gray-200);border-radius:2px;margin:10px auto 0}
+@media(min-width:640px){
+  .legal-modal-overlay{align-items:center;padding:20px}
+  .legal-modal{border-radius:16px;max-height:80vh}
+  .legal-drag{display:none}
+}
+</style>
+
+<footer class="footer-legal">
+  <div class="footer-legal-inner">
+    <div class="footer-legal-logo">
+      <span style="font-size:17px;font-weight:900;letter-spacing:-.5px">OmniStock</span>
+      <span style="width:7px;height:7px;background:#00C853;border-radius:50%;display:inline-block"></span>
+    </div>
+    <p style="font-size:13px;color:var(--gray-600);max-width:540px;margin-bottom:18px;line-height:1.6">OmniStock connecte les consommateurs aux stocks réels des commerçants. Chaque disponibilité est fournie par le commerçant partenaire. OmniStock ne stocke aucun produit.</p>
+    <div class="footer-legal-links">
+      <a onclick="openLegal('cgu')">Conditions générales d'utilisation</a>
+      <a onclick="openLegal('confidentialite')">Politique de confidentialité</a>
+      <a onclick="openLegal('mentions')">Mentions légales</a>
+      <a onclick="openLegal('cookies')">Cookies</a>
+      <a onclick="openLegal('contact')">Nous contacter</a>
+    </div>
+    <div class="footer-legal-bottom">
+      <span style="font-size:12px;color:var(--gray-400)">© 2025 OmniStock. Tous droits réservés.</span>
+      <span style="font-size:12px;color:var(--gray-400)">Commission 12 % · Paiement sécurisé 🔒</span>
+    </div>
+  </div>
+</footer>
+
+<!-- MODAL LÉGALE -->
+<div class="legal-modal-overlay" id="legal-modal-overlay" onclick="closeLegalIfBg(event)">
+  <div class="legal-modal">
+    <div class="legal-drag"></div>
+    <div class="legal-modal-head">
+      <div class="legal-modal-title" id="legal-modal-title">—</div>
+      <button class="legal-modal-close" onclick="closeLegal()">×</button>
+    </div>
+    <div class="legal-modal-body" id="legal-modal-body"></div>
+  </div>
+</div>
+
+<script>
+const legalContent = {
+  cgu: {
+    title: "Conditions générales d'utilisation",
+    body: `
+      <h3>1. Objet</h3>
+      <p>OmniStock est une plateforme de mise en relation entre commerçants et consommateurs permettant de consulter les stocks disponibles en temps réel et de réserver des produits pour retrait en magasin.</p>
+      <h3>2. Accès au service</h3>
+      <p>L'accès à OmniStock est gratuit pour les consommateurs. La création d'un compte est nécessaire pour réserver un produit. Les commerçants peuvent s'inscrire gratuitement ou souscrire à un abonnement Pro à 99 €/mois.</p>
+      <h3>3. Réservations</h3>
+      <p>Toute réservation validée génère un code secret unique à présenter en magasin. Le paiement s'effectue au moment de la réservation. Les fonds sont conservés par OmniStock jusqu'à validation du retrait par le commerçant.</p>
+      <h3>4. Commission</h3>
+      <p>OmniStock prélève une commission de 12 % sur chaque vente réalisée via la plateforme. Cette commission est déduite automatiquement lors du versement au commerçant.</p>
+      <h3>5. Annulations et remboursements</h3>
+      <p>En cas de rupture de stock constatée en magasin malgré la réservation, le client est intégralement remboursé dans un délai de 5 jours ouvrés.</p>
+      <h3>6. Responsabilité</h3>
+      <p>OmniStock agit en qualité d'intermédiaire technique. La responsabilité des informations de stock incombe au commerçant partenaire. OmniStock ne peut être tenu responsable d'une indisponibilité de produit due à une erreur du commerçant.</p>
+      <h3>7. Modification des CGU</h3>
+      <p>OmniStock se réserve le droit de modifier les présentes CGU à tout moment. Les utilisateurs seront informés par email de tout changement substantiel.</p>
+    `
+  },
+  confidentialite: {
+    title: "Politique de confidentialité",
+    body: `
+      <h3>1. Données collectées</h3>
+      <p>OmniStock collecte les données suivantes lors de votre inscription et utilisation du service :</p>
+      <ul>
+        <li>Nom et prénom</li>
+        <li>Adresse email</li>
+        <li>Données de localisation (avec votre consentement)</li>
+        <li>Historique de commandes</li>
+        <li>Avis déposés sur la plateforme</li>
+      </ul>
+      <h3>2. Utilisation des données</h3>
+      <p>Vos données sont utilisées pour :</p>
+      <ul>
+        <li>Gérer votre compte et vos réservations</li>
+        <li>Vous afficher les produits disponibles près de chez vous</li>
+        <li>Vous envoyer les confirmations de commande</li>
+        <li>Améliorer nos services</li>
+      </ul>
+      <h3>3. Partage des données</h3>
+      <p>Vos données ne sont jamais vendues à des tiers. Elles peuvent être transmises au commerçant concerné uniquement dans le cadre d'une réservation (nom, email de contact).</p>
+      <h3>4. Hébergement</h3>
+      <p>Les données sont hébergées via Firebase (Google Cloud), dans des data centers situés en Europe de l'Ouest, conformément au RGPD.</p>
+      <h3>5. Vos droits</h3>
+      <p>Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, de suppression et de portabilité de vos données. Pour exercer ces droits, contactez-nous à : <strong>privacy@omnistock.fr</strong></p>
+      <h3>6. Durée de conservation</h3>
+      <p>Les données de compte sont conservées pendant toute la durée d'utilisation du service, puis supprimées dans un délai de 3 ans après la dernière activité.</p>
+    `
+  },
+  mentions: {
+    title: "Mentions légales",
+    body: `
+      <h3>Éditeur du site</h3>
+      <p><strong>OmniStock SAS</strong><br>
+      Capital social : 1000 €<br>
+      Siège social : 3 bis rue des paquerettes, neuville de poitou 86170<br>
+     
+      SIRET : 123 456 789 00012<br>
+      TVA intracommunautaire : FR12 123456789</p>
+      <h3>Directeur de la publication</h3>
+      <p>Le directeur de la publication est le représentant légal de la société OmniStock SAS.</p>
+      <h3>Hébergement</h3>
+      <p><strong>Google Firebase</strong><br>
+      Google LLC, 1600 Amphitheatre Parkway, Mountain View, CA 94043, USA<br>
+      Données hébergées en Europe de l'Ouest (region : europe-west1)</p>
+      <h3>Propriété intellectuelle</h3>
+      <p>L'ensemble du contenu de ce site (logo, textes, interface) est la propriété exclusive d'OmniStock SAS. Toute reproduction est interdite sans autorisation écrite préalable.</p>
+      <h3>Contact</h3>
+      <p>Pour toute question : <strong>gabrielstadelmann1@gmail.com</strong></p>
+    `
+  },
+  cookies: {
+    title: "Politique de cookies",
+    body: `
+      <h3>Qu'est-ce qu'un cookie ?</h3>
+      <p>Un cookie est un petit fichier texte déposé sur votre appareil lors de la visite d'un site web. OmniStock utilise des cookies pour assurer le bon fonctionnement du service.</p>
+      <h3>Cookies utilisés</h3>
+      <ul>
+        <li><strong>Cookies de session Firebase</strong> — indispensables pour maintenir votre connexion. Durée : session.</li>
+        <li><strong>Cookies de préférences</strong> — mémorisation de vos filtres et préférences d'affichage. Durée : 30 jours.</li>
+        <li><strong>Cookies analytiques</strong> — mesure d'audience anonymisée pour améliorer le service. Durée : 13 mois.</li>
+      </ul>
+      <h3>Cookies tiers</h3>
+      <p>OmniStock utilise Firebase (Google) pour l'authentification et la base de données. Google peut déposer ses propres cookies soumis à sa politique de confidentialité.</p>
+      <h3>Gestion des cookies</h3>
+      <p>Vous pouvez à tout moment désactiver les cookies depuis les paramètres de votre navigateur. Notez que la désactivation des cookies essentiels empêchera la connexion à votre compte.</p>
+    `
+  },
+  contact: {
+    title: "Nous contacter",
+    body: `
+      <h3>Support client</h3>
+      <p>Pour toute question concernant une commande, un produit ou votre compte :<br>
+      📧 <strong>gabrielstadelmann1@gmail.com</strong><br>
+      🕐 Réponse sous 24h ouvrées</p>
+      <h3>Commerçants</h3>
+      <p>Pour rejoindre OmniStock en tant que commerçant ou pour toute question partenaire :<br>
+      📧 <strong>gabrielstadelmann1@gmail.com</strong></p>
+      <h3>Signalement</h3>
+      <p>Pour signaler un produit ou un comportement problématique :<br>
+      📧 <strong>gabrielstadelmann1@gmail.com</strong></p>
+      <h3>Données personnelles</h3>
+      <p>Pour exercer vos droits RGPD (accès, rectification, suppression) :<br>
+      📧 <strong>gabrielstadelmann1@gmail.com</strong></p>
+      <h3>Adresse postale</h3>
+      <p>OmniStock SAS<br>3 bis rue des paquerettes neuville de poitou, France</p>
+    `
+  }
+};
+
+window.openLegal = function(key) {
+  const content = legalContent[key];
+  if (!content) return;
+  document.getElementById('legal-modal-title').textContent = content.title;
+  document.getElementById('legal-modal-body').innerHTML = content.body;
+  document.getElementById('legal-modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeLegal = function() {
+  document.getElementById('legal-modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+};
+
+window.closeLegalIfBg = function(e) {
+  if (e.target === document.getElementById('legal-modal-overlay')) closeLegal();
+};
+</script>
+
+
+
+
+
+
+  
 </body>
 </html>
