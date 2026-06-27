@@ -1214,6 +1214,33 @@ window.applySortAndRender = function() {
   renderPage();
 };
 
+let currentPage = 1;
+const PAGE_SIZE = 12;
+let sortedProductsList = [];
+
+window.applySortAndRender = function() {
+  currentPage = 1;
+  const sort = document.getElementById('sort-select').value;
+  const radiusKm = parseInt(document.getElementById('radius-select').value)||0;
+  let list = [...filteredProducts];
+  if (userLat && radiusKm > 0) {
+    list = list.filter(p => (!p.storeLat||!p.storeLng)||haversine(userLat,userLng,p.storeLat,p.storeLng)<=radiusKm);
+  }
+  const countEl = document.getElementById('loc-count');
+  countEl.textContent = (userLat && radiusKm > 0) ? `${list.length} produit${list.length!==1?'s':''} dans ce rayon` : '';
+  if (sort==='boost') {
+    const boosted = list.filter(p=>p.boosted);
+    const others = list.filter(p=>!p.boosted).sort(()=>Math.random()-.5);
+    list = [...boosted, ...others];
+  } else if (sort==='price-asc') list.sort((a,b)=>a.price-b.price);
+  else if (sort==='price-desc') list.sort((a,b)=>b.price-a.price);
+  else if (sort==='rating') list.sort((a,b)=>(b.avgRating||0)-(a.avgRating||0));
+  else if (sort==='distance'&&userLat) list.sort((a,b)=>{const dA=(a.storeLat&&a.storeLng)?haversine(userLat,userLng,a.storeLat,a.storeLng):9999;const dB=(b.storeLat&&b.storeLng)?haversine(userLat,userLng,b.storeLat,b.storeLng):9999;return dA-dB;});
+  else list.sort((a,b)=>(b.updatedAt||b.createdAt||0)-(a.updatedAt||a.createdAt||0));
+  sortedProductsList = list;
+  renderPage();
+};
+
 window.setView = function(v, btn) {
   currentGridView = v;
   document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active'));
