@@ -1967,7 +1967,13 @@ window.doAddProduct=async function(){
     const isPro=(await get(ref(db,`merchants/${currentUser.uid}/isPro`))).val()||false;
     const snapM=await get(ref(db,`merchants/${currentUser.uid}`));const mData=snapM.val()||{};
     const product={name,price,category,stock:qty,desc:document.getElementById('p-desc').value,merchantId:currentUser.uid,storeName:mData.storeName||currentMerchant.storeName,storeAddress:mData.address||currentMerchant.address,storeHours:mData.hours||currentMerchant.hours||'',createdAt:Date.now(),updatedAt:Date.now(),avgRating:0,reviewCount:0,boosted:false};
-    if(mData.lat&&mData.lng){product.storeLat=mData.lat;product.storeLng=mData.lng;}
+   const pLat = parseFloat(document.getElementById('p-loc-lat')?.value);
+const pLng = parseFloat(document.getElementById('p-loc-lng')?.value);
+if(!isNaN(pLat)&&!isNaN(pLng)){
+  product.storeLat=pLat;product.storeLng=pLng;
+} else if(mData.lat&&mData.lng){
+  product.storeLat=mData.lat;product.storeLng=mData.lng;
+}
     if(mData.avatar)product.storeAvatar=mData.avatar;
     if(!isNaN(old)&&old>0)product.oldPrice=old;
     if(imgBase64)product.img=imgBase64;
