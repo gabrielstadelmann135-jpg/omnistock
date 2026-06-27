@@ -2371,77 +2371,7 @@ window.closeLegalIfBg=function(e){
 
 
 
-  <script>
-(function(){
-  let currentPage = 1;
-  const PAGE_SIZE = 12;
-  let sortedProductsList = [];
-
-  const _origApply = window.applySortAndRender;
-
-  window.applySortAndRender = function() {
-    currentPage = 1;
-    const sort = document.getElementById('sort-select').value;
-    const radiusKm = parseInt(document.getElementById('radius-select').value)||0;
-    let list = [...(window.filteredProducts||[])];
-    if (window.userLat && radiusKm > 0) {
-      list = list.filter(p => (!p.storeLat||!p.storeLng)||haversine(window.userLat,window.userLng,p.storeLat,p.storeLng)<=radiusKm);
-    }
-    const countEl = document.getElementById('loc-count');
-    if(countEl) countEl.textContent = (window.userLat && radiusKm > 0) ? `${list.length} produit${list.length!==1?'s':''} dans ce rayon` : '';
-
-    if (sort==='boost') {
-      const boosted = list.filter(p=>p.boosted);
-      const others = list.filter(p=>!p.boosted).sort(()=>Math.random()-.5);
-      list = [...boosted, ...others];
-    } else if (sort==='price-asc') list.sort((a,b)=>a.price-b.price);
-    else if (sort==='price-desc') list.sort((a,b)=>b.price-a.price);
-    else if (sort==='rating') list.sort((a,b)=>(b.avgRating||0)-(a.avgRating||0));
-    else if (sort==='distance'&&window.userLat) list.sort((a,b)=>{
-      const dA=(a.storeLat&&a.storeLng)?haversine(window.userLat,window.userLng,a.storeLat,a.storeLng):9999;
-      const dB=(b.storeLat&&b.storeLng)?haversine(window.userLat,window.userLng,b.storeLat,b.storeLng):9999;
-      return dA-dB;
-    });
-    else list.sort((a,b)=>(b.updatedAt||b.createdAt||0)-(a.updatedAt||a.createdAt||0));
-
-    sortedProductsList = list;
-    renderPage();
-  };
-
-  function renderPage() {
-    const grid = document.getElementById('product-grid');
-    if (!grid) return;
-    const list = sortedProductsList;
-    if (!list.length) {
-      grid.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>Aucun produit trouvé</p></div>';
-      removeSeeMoreBtn(); return;
-    }
-    const slice = list.slice(0, currentPage * PAGE_SIZE);
-    grid.innerHTML = slice.map(p => window.cardHTML ? window.cardHTML(p) : '').join('');
-    updateSeeMoreBtn(slice.length < list.length, list.length, slice.length);
-  }
-
-  function updateSeeMoreBtn(show, total, shown) {
-    let btn = document.getElementById('see-more-btn');
-    if (!show) { if(btn) btn.remove(); return; }
-    if (!btn) {
-      btn = document.createElement('div');
-      btn.id = 'see-more-btn';
-      btn.style.cssText = 'text-align:center;margin:28px 0 60px';
-      const section = document.querySelector('.section');
-      if(section) section.appendChild(btn);
-    }
-    btn.innerHTML = `<button onclick="window._loadMore()" class="btn btn-outline" style="padding:12px 32px;font-size:14px;font-weight:700">Voir plus de produits <span style="color:var(--gray-400);font-weight:400;font-size:13px">(${shown}/${total})</span></button>`;
-  }
-
-  function removeSeeMoreBtn() { const b=document.getElementById('see-more-btn'); if(b) b.remove(); }
-
-  window._loadMore = function() {
-    currentPage++;
-    renderPage();
-  };
-})();
-</script>
+ 
 
 
 
