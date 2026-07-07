@@ -2488,7 +2488,84 @@ window.closeLegalIfBg=function(e){
 })();
 </script>
 
- 
+ <script src="https://js.stripe.com/v3/"></script>
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+  // On attend que tout le reste (Firebase, cart, etc.) soit chargé
+  const waitForReady = setInterval(() => {
+    if (window.confirmCheckout && typeof get === 'function') {
+      clearInterval(waitForReady);
+      initStripeOverride();
+    }
+  }, 100);
+});
+
+function initStripeOverride() {
+
+  // ⚠️ Remplacez cette URL par votre vraie URL Vercel une fois déployée
+  const VERCEL_API_URL = 'https://VOTRE-URL-VERCEL.vercel.app';
+
+  window.confirmCheckout = async function() {
+    const btn = document.getElementById('checkout-btn');
+    btn.innerHTML = '<span class="inline-loader"></span>'; btn.disabled = true;
+    try {
+      const merchantId = checkoutMerchantId;
+      const store = cart[merchantId];
+      if (!store) { btn.innerHTML='Réserver et payer';btn.disabled=false; return; }
+      const items = Object.values(store.items);
+
+      for (const item of items) {
+        const snap = await get(ref(db, `products/${item.product.id}/stock`));
+        if (!snap.val()||snap.val()<item.qty) {
+          showAlert('checkout','error',`Stock insuffisant pour "${item.product.name}". Ajustez votre panier.`);
+          btn.innerHTML='Réserver et payer';btn.disabled=false; return;
+        }
+      }
+
+      const total = cartMerchantTotal(merchantId);
+      const secretCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const orderId = 'OMS-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,5).toUpperCase();
+      const orderItems = items.map(i => ({ productId:i.product.id, productName:i.product.name, price:i.product.price, qty:i.qty }));
+
+      const order = {
+        orderId, secretCode, items: orderItems, total,
+        merchantId, merchantName: store.merchantName,
+        storeAddress: store.storeAddress||'',
+        storeLat: store.storeLat||null, storeLng: store.storeLng||null,
+        userId: currentUser.uid, userEmail: currentUser.email,
+        userName: currentUser.displayName||currentUser.email,
+        paymentMethod: document.getElementById('payment-method').value,
+        status: 'awaiting_payment', createdAt: Date.now()
+      };
+      await set(ref(db, `orders/${orderId}`), order);
+
+      const resp = await fetch(`${VERCEL_API_URL}/api/create-checkout-session`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: orderItems, orderId, merchantName: store.merchantName, total })
+      });
+      const data = await resp.json();
+      if (!data.url) throw new Error('Pas de session Stripe créée');
+
+      delete cart[merchantId];
+      updateCartUI();
+      window.location.href = data.url;
+
+    } catch(e) { console.error(e); showAlert('checkout','error','Erreur. Réessayez.'); }
+    btn.innerHTML='Réserver et payer'; btn.disabled=false;
+  };
+
+  // Détecte le retour de paiement Stripe
+  (async function(){
+    const p = new URLSearchParams(window.location.search).get('order');
+    if (p) {
+      const s = await get(ref(db, `orders/${p}`));
+      if (s.exists()) showOrderConfirmation({ id: p, ...s.val() });
+    }
+  })();
+
+}
+</script>
 
 
 
